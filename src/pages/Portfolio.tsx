@@ -1,8 +1,8 @@
-
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ContactForm from "@/components/ContactForm";
 
 const Portfolio = () => {
   const projects = [
@@ -85,7 +85,7 @@ const Portfolio = () => {
       <Navbar />
       <main className="pt-20">
         {/* Header */}
-        <section className="bg-brand-dark text-white py-12 md:py-20">
+        <section className="bg-black text-white py-12 md:py-20">
           <div className="container-custom">
             <Link to="/" className="inline-flex items-center text-gray-300 hover:text-white mb-8">
               <ArrowLeft className="mr-2 h-4 w-4" /> Back to Home
