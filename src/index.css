@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -57,17 +58,17 @@
   }
   
   .card-hover {
-    @apply transition-all hover:shadow-lg hover:-translate-y-1 hover:border-gray-300;
+    @apply transition-all hover:shadow-lg hover:-translate-y-1;
   }
   
   .btn-primary {
-    @apply bg-white text-black font-medium rounded-md py-3 px-6 border-2 border-black 
+    @apply bg-white text-black font-medium rounded-full py-3 px-6 border border-black/10
            transition-all hover:bg-black hover:text-white hover:translate-y-[-2px] 
            hover:shadow-md active:translate-y-0;
   }
   
   .btn-secondary {
-    @apply bg-black text-white font-medium border-2 border-black rounded-md py-3 px-6 
+    @apply bg-black text-white font-medium border border-black rounded-full py-3 px-6 
            transition-all hover:bg-white hover:text-black hover:translate-y-[-2px] 
            hover:shadow-sm active:translate-y-0;
   }
@@ -75,7 +76,7 @@
 
 .hero-pattern {
   background-color: #ffffff;
-  background-image: radial-gradient(#00000010 1px, transparent 1px);
+  background-image: radial-gradient(#00000008 1px, transparent 1px);
   background-size: 25px 25px;
 }
 

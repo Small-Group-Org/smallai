@@ -9,23 +9,17 @@ const Navbar = () => {
   
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+      setIsScrolled(window.scrollY > 10);
     };
     
     window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
     <header
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-        isScrolled ? "bg-white/90 backdrop-blur-md shadow-sm border-b border-black/10" : "bg-transparent"
+        isScrolled ? "bg-white/90 backdrop-blur-md shadow-sm" : "bg-transparent"
       }`}
     >
       <div className="container-custom py-4 flex items-center justify-between">
@@ -35,25 +29,25 @@ const Navbar = () => {
         
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
-          <Link to="/" className="font-medium text-black hover:text-brand-purple transition-colors">
+          <Link to="/" className="text-sm font-medium text-black hover:text-brand-purple transition-colors">
             Home
           </Link>
-          <Link to="/portfolio" className="font-medium text-black hover:text-brand-purple transition-colors">
-            Work
+          <Link to="/portfolio" className="text-sm font-medium text-black hover:text-brand-purple transition-colors">
+            What We've Built
           </Link>
           <a 
             href="#services" 
-            className="font-medium text-black hover:text-brand-purple transition-colors"
+            className="text-sm font-medium text-black hover:text-brand-purple transition-colors"
             onClick={(e) => {
               e.preventDefault();
               document.getElementById("services")?.scrollIntoView({ behavior: "smooth" });
             }}
           >
-            Services
+            Why Us
           </a>
           <a 
             href="#contact" 
-            className="btn-primary"
+            className="btn-primary text-sm px-4 py-2"
             onClick={(e) => {
               e.preventDefault();
               document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
@@ -63,7 +57,6 @@ const Navbar = () => {
           </a>
         </nav>
         
-        {/* Mobile Navigation Toggle */}
         <button
           className="md:hidden"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -78,36 +71,36 @@ const Navbar = () => {
       
       {/* Mobile Navigation Menu */}
       {isMenuOpen && (
-        <div className="md:hidden absolute top-16 left-0 right-0 bg-white shadow-lg border-t border-black/10 p-4 animate-fade-in">
+        <div className="md:hidden absolute top-16 left-0 right-0 bg-white border-t border-black/5 p-4">
           <nav className="flex flex-col space-y-4">
             <Link 
               to="/" 
-              className="font-medium text-black hover:text-brand-purple p-2"
+              className="text-sm font-medium text-black hover:text-brand-purple p-2"
               onClick={() => setIsMenuOpen(false)}
             >
               Home
             </Link>
             <Link 
               to="/portfolio" 
-              className="font-medium text-black hover:text-brand-purple p-2"
+              className="text-sm font-medium text-black hover:text-brand-purple p-2"
               onClick={() => setIsMenuOpen(false)}
             >
-              Work
+              What We've Built
             </Link>
             <a 
               href="#services" 
-              className="font-medium text-black hover:text-brand-purple p-2"
+              className="text-sm font-medium text-black hover:text-brand-purple p-2"
               onClick={(e) => {
                 e.preventDefault();
                 document.getElementById("services")?.scrollIntoView({ behavior: "smooth" });
                 setIsMenuOpen(false);
               }}
             >
-              Services
+              Why Us
             </a>
             <a 
               href="#contact" 
-              className="btn-primary text-center"
+              className="btn-primary text-center text-sm"
               onClick={(e) => {
                 e.preventDefault();
                 document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });

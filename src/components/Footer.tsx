@@ -4,22 +4,22 @@ import { Link as RouterLink } from "react-router-dom";
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-gray-100">
-      <div className="container-custom py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Column 1 */}
-          <div>
-            <h3 className="text-xl font-bold gradient-text mb-4">Small AI</h3>
-            <p className="text-gray-300 mb-4">
+    <footer className="bg-white border-t border-black/5">
+      <div className="container-custom py-16">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8">
+          {/* Brand Column */}
+          <div className="col-span-1">
+            <h3 className="text-xl font-bold mb-4">Small AI</h3>
+            <p className="text-sm text-gray-600 mb-6">
               We build automations that cut hours of manual work from your ops.
               Schedule a quick call to see what's possible.
             </p>
-            <div className="flex items-center space-x-4 mt-6">
+            <div className="flex items-center space-x-4">
               <a 
                 href="https://www.instagram.com/small_ai_/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-gray-300 hover:text-brand-purple transition-colors"
+                className="text-gray-400 hover:text-brand-purple transition-colors"
               >
                 <Instagram size={20} />
               </a>
@@ -27,84 +27,61 @@ const Footer = () => {
                 href="https://www.youtube.com/@smallgrp" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-gray-300 hover:text-brand-purple transition-colors"
+                className="text-gray-400 hover:text-brand-purple transition-colors"
               >
                 <Youtube size={20} />
               </a>
-              <a 
-                href="mailto:prakarshgupta02051@gmail.com" 
-                className="text-gray-300 hover:text-brand-purple transition-colors"
-              >
-                <Mail size={20} />
-              </a>
-              <a 
-                href="https://www.smallgrp.com" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-gray-300 hover:text-brand-purple transition-colors"
-              >
-                <Link size={20} />
-              </a>
             </div>
           </div>
-          
-          {/* Column 2 */}
+
+          {/* Product Column */}
           <div>
-            <h3 className="text-lg font-bold mb-4">Quick Links</h3>
-            <nav className="flex flex-col space-y-2">
-              <RouterLink to="/" className="text-gray-300 hover:text-white transition-colors">
-                Home
-              </RouterLink>
-              <RouterLink to="/portfolio" className="text-gray-300 hover:text-white transition-colors">
+            <h4 className="text-sm font-semibold uppercase text-gray-400 mb-4">Product</h4>
+            <nav className="flex flex-col space-y-3">
+              <a href="#services" className="text-sm text-gray-600 hover:text-black transition-colors">Features</a>
+              <RouterLink to="/portfolio" className="text-sm text-gray-600 hover:text-black transition-colors">
                 Our Work
               </RouterLink>
-              <a 
-                href="#services" 
-                className="text-gray-300 hover:text-white transition-colors"
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById("services")?.scrollIntoView({ behavior: "smooth" });
-                }}
-              >
-                Services
-              </a>
-              <a 
-                href="#contact" 
-                className="text-gray-300 hover:text-white transition-colors"
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
-                }}
-              >
-                Contact
-              </a>
+              <a href="#contact" className="text-sm text-gray-600 hover:text-black transition-colors">Contact</a>
             </nav>
           </div>
-          
-          {/* Column 3 */}
+
+          {/* Company Column */}
           <div>
-            <h3 className="text-lg font-bold mb-4">Contact Us</h3>
-            <address className="not-italic text-gray-300">
-              <p className="mb-2">Email: prakarshgupta02051@gmail.com</p>
-              <p className="mb-2">Website: www.smallgrp.com</p>
-            </address>
-            <div className="mt-4">
-              <a 
-                href="#contact" 
-                className="inline-block bg-brand-purple text-white px-4 py-2 rounded-md hover:bg-opacity-90 transition-colors"
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
-                }}
-              >
-                Book a Discovery Call
-              </a>
+            <h4 className="text-sm font-semibold uppercase text-gray-400 mb-4">Company</h4>
+            <nav className="flex flex-col space-y-3">
+              <a href="#about" className="text-sm text-gray-600 hover:text-black transition-colors">About</a>
+              <a href="#blog" className="text-sm text-gray-600 hover:text-black transition-colors">Blog</a>
+              <a href="#careers" className="text-sm text-gray-600 hover:text-black transition-colors">Careers</a>
+            </nav>
+          </div>
+
+          {/* Newsletter Column */}
+          <div className="col-span-1">
+            <h4 className="text-sm font-semibold uppercase text-gray-400 mb-4">Stay Updated</h4>
+            <div className="flex flex-col space-y-4">
+              <input 
+                type="email" 
+                placeholder="Enter your email" 
+                className="px-4 py-2 border border-black/10 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-brand-purple/20"
+              />
+              <button className="btn-primary text-sm">Subscribe</button>
             </div>
           </div>
         </div>
         
-        <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-          <p>&copy; {new Date().getFullYear()} Small AI. All rights reserved.</p>
+        <div className="border-t border-black/5 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+          <p className="text-sm text-gray-400 mb-4 md:mb-0">
+            © {new Date().getFullYear()} Small AI. All rights reserved.
+          </p>
+          <div className="flex items-center space-x-6">
+            <a href="/privacy" className="text-sm text-gray-600 hover:text-black transition-colors">
+              Privacy Policy
+            </a>
+            <a href="/terms" className="text-sm text-gray-600 hover:text-black transition-colors">
+              Terms of Service
+            </a>
+          </div>
         </div>
       </div>
     </footer>
