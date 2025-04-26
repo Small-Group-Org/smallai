@@ -1,5 +1,5 @@
 
-import { ArrowRight, Youtube, Discord } from "lucide-react";
+import { ArrowRight, Youtube, MessageSquare } from "lucide-react";
 
 const HeroSection = () => {
   return (
@@ -22,7 +22,7 @@ const HeroSection = () => {
             rel="noopener noreferrer"
             className="text-gray-600 hover:text-brand-purple transition-colors"
           >
-            <Discord size={32} />
+            <MessageSquare size={32} />
           </a>
         </div>
 
