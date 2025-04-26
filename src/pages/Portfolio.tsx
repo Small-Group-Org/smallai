@@ -139,7 +139,7 @@ const Portfolio = () => {
                       </a>
                       <a
                         href="#contact"
-                        className="text-sm px-3 py-1 bg-brand-purple text-white rounded-md hover:bg-opacity-90"
+                        className="btn-primary text-sm"
                         onClick={(e) => {
                           e.preventDefault();
                           document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });

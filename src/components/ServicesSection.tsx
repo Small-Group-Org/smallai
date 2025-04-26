@@ -5,26 +5,20 @@ const ServicesSection = () => {
   const services = [
     {
       id: 1,
-      title: "AI Workflow Automation",
+      title: "AI Automations",
       description: "We automate repetitive business processes using custom AI agents, saving you time and reducing errors.",
-      icon: "⚙️",
-    },
-    {
-      id: 2,
-      title: "Custom AI Solutions",
-      description: "Bespoke AI solutions designed specifically for your business challenges and operational requirements.",
       icon: "🤖",
     },
     {
-      id: 3,
-      title: "AI Integration",
-      description: "Seamlessly integrate AI capabilities into your existing systems and applications.",
-      icon: "🔄",
+      id: 2,
+      title: "AI Consultancy",
+      description: "Expert guidance on implementing AI solutions and optimizing your business processes.",
+      icon: "💡",
     },
     {
-      id: 4,
-      title: "AI-Powered MVPs",
-      description: "Rapidly develop AI-driven minimum viable products to validate your business ideas.",
+      id: 3,
+      title: "SaaS/MVP Building",
+      description: "Rapid development of AI-powered MVPs using modern tools like Lovable, Bolt, and Replit.",
       icon: "🚀",
     },
   ];
@@ -40,7 +34,7 @@ const ServicesSection = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {services.map((service) => (
             <div 
               key={service.id} 

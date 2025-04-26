@@ -1,5 +1,5 @@
 
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Youtube, Discord } from "lucide-react";
 
 const HeroSection = () => {
   return (
@@ -7,6 +7,25 @@ const HeroSection = () => {
       <div className="absolute inset-0 bg-gradient-to-b from-white/50 to-white/95"></div>
       
       <div className="container-custom relative z-10 flex flex-col items-center justify-center py-20 md:py-32">
+        <div className="flex gap-6 mb-12">
+          <a 
+            href="https://www.youtube.com/@smallgrp" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-gray-600 hover:text-brand-purple transition-colors"
+          >
+            <Youtube size={32} />
+          </a>
+          <a 
+            href="https://discord.gg/u6fvHes5CW" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-gray-600 hover:text-brand-purple transition-colors"
+          >
+            <Discord size={32} />
+          </a>
+        </div>
+
         <div className="text-center max-w-3xl mx-auto">
           <h1 className="text-4xl md:text-6xl font-extrabold text-black mb-6">
             Effortless Automation, <br/> Intelligent Results.
