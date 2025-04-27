@@ -1,31 +1,23 @@
-
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import ProjectModal from "./ProjectModal";
+import { featuredProjects } from "@/commons/constant";
 
 const PortfolioSection = () => {
-  const featuredProjects = [
-    {
-      id: 1,
-      title: "Automated SEO for Coaches",
-      description: "AI-powered content generation and keyword optimization system for coaching businesses.",
-      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80",
-      tags: ["SEO", "AI Content", "Automation"],
-    },
-    {
-      id: 2,
-      title: "Customer Support AI Agent",
-      description: "Intelligent AI system that handles routine customer inquiries and routes complex issues to human operators.",
-      image: "https://images.unsplash.com/photo-1531746790731-6c087fecd65a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80",
-      tags: ["Customer Service", "AI Agent", "Natural Language Processing"],
-    },
-    {
-      id: 3,
-      title: "Social Media Automation",
-      description: "End-to-end system for content planning, creation, and scheduling across multiple social platforms.",
-      image: "https://images.unsplash.com/photo-1553484771-371a605b060b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80",
-      tags: ["Social Media", "Content Creation", "Scheduling"],
-    },
-  ];
+  const [selectedProject, setSelectedProject] = useState<
+    (typeof featuredProjects)[0] | null
+  >(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleViewAllClick = () => {
+    window.scrollTo(0, 0);
+  };
+
+  const handleProjectClick = (project: (typeof featuredProjects)[0]) => {
+    setSelectedProject(project);
+    setIsModalOpen(true);
+  };
 
   return (
     <section className="section-padding bg-gray-50">
@@ -34,13 +26,15 @@ const PortfolioSection = () => {
           <div>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Our Work</h2>
             <p className="text-lg text-gray-600 max-w-2xl">
-              Explore our portfolio of AI automation projects delivering real business results.
+              Explore our portfolio of AI automation projects delivering real
+              business results.
             </p>
           </div>
           <div className="mt-6 md:mt-0">
-            <Link 
-              to="/portfolio" 
+            <Link
+              to="/portfolio"
               className="btn-primary flex items-center"
+              onClick={handleViewAllClick}
             >
               View All Projects <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
@@ -73,17 +67,23 @@ const PortfolioSection = () => {
                     </span>
                   ))}
                 </div>
-                <Link 
-                  to={`/portfolio/${project.id}`}
+                <button
+                  onClick={() => handleProjectClick(project)}
                   className="inline-flex items-center text-brand-purple font-medium hover:underline"
                 >
                   View Details <ArrowRight className="ml-1 h-4 w-4" />
-                </Link>
+                </button>
               </div>
             </div>
           ))}
         </div>
       </div>
+
+      <ProjectModal
+        project={selectedProject}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </section>
   );
 };
