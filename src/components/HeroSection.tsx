@@ -1,37 +1,24 @@
 
-import { ArrowRight, Youtube, MessageSquare } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import SocialIcons from "./SocialIcons";
 
 const HeroSection = () => {
   return (
-    <section className="min-h-screen relative overflow-hidden hero-pattern pt-24">
-      <div className="absolute inset-0 bg-gradient-to-b from-white/50 to-white/95"></div>
+    <section className="min-h-screen relative overflow-hidden bg-[#0A0C1B] pt-24">
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0A0C1B]/95"></div>
       
       <div className="container-custom relative z-10 flex flex-col items-center justify-center py-20 md:py-32">
-        <div className="flex gap-6 mb-12">
-          <a 
-            href="https://www.youtube.com/@smallgrp" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-gray-600 hover:text-brand-purple transition-colors"
-          >
-            <Youtube size={32} />
-          </a>
-          <a 
-            href="https://discord.gg/u6fvHes5CW" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-gray-600 hover:text-brand-purple transition-colors"
-          >
-            <MessageSquare size={32} />
-          </a>
+        {/* Social Icons */}
+        <div className="mb-12">
+          <SocialIcons />
         </div>
 
         <div className="text-center max-w-3xl mx-auto">
-          <h1 className="text-4xl md:text-6xl font-extrabold text-black mb-6">
+          <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-6">
             Effortless Automation, <br/> Intelligent Results.
           </h1>
           
-          <p className="text-lg md:text-xl text-gray-600 mb-12">
+          <p className="text-lg md:text-xl text-gray-300 mb-12">
             We build AI systems that skip manual work clutter and make your operations easier to manage.
           </p>
           
@@ -60,19 +47,19 @@ const HeroSection = () => {
           </div>
         </div>
         
-        <div className="mt-16 w-full max-w-4xl mx-auto bg-white rounded-2xl p-8 border border-black/10 shadow-lg animate-fade-in overflow-hidden">
+        <div className="mt-16 w-full max-w-4xl mx-auto bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 shadow-lg">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             <div className="p-4">
-              <h3 className="text-3xl font-bold text-black mb-2">30+</h3>
-              <p className="text-gray-600">Projects Completed</p>
+              <h3 className="text-3xl font-bold text-white mb-2">30+</h3>
+              <p className="text-gray-300">Projects Completed</p>
             </div>
             <div className="p-4">
-              <h3 className="text-3xl font-bold text-black mb-2">10x</h3>
-              <p className="text-gray-600">Average Client ROI</p>
+              <h3 className="text-3xl font-bold text-white mb-2">10x</h3>
+              <p className="text-gray-300">Average Client ROI</p>
             </div>
             <div className="p-4">
-              <h3 className="text-3xl font-bold text-black mb-2">95%</h3>
-              <p className="text-gray-600">Client Satisfaction</p>
+              <h3 className="text-3xl font-bold text-white mb-2">95%</h3>
+              <p className="text-gray-300">Client Satisfaction</p>
             </div>
           </div>
         </div>
