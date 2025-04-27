@@ -34,7 +34,7 @@ const HeroSection = () => {
       >
         {/* Social Media Nodes */}
         <div
-          className={`absolute md:right-[-150px] right-[-30px] top-[-25px] md:top-24 z-50 transition-all duration-500 transform ${
+          className={`absolute md:right-[-150px] right-[-20px] top-[-40px] md:top-24 z-50 transition-all duration-500 transform ${
             isVisible
               ? "translate-x-0 opacity-100"
               : "translate-x-full opacity-0"
@@ -98,9 +98,9 @@ const HeroSection = () => {
             </svg>
 
             {/* Nodes Container */}
-            <div className="flex md:flex-col flex-row md:gap-8 gap-12 pt-8 md:pt-0 pr-24 md:pr-[150px]">
+            <div className="flex md:flex-col flex-row md:gap-8 gap-12 pt-8 md:pt-0 pr-12 md:pr-[150px]">
               {/* YouTube Node */}
-              <div className="relative group">
+              <div className="relative group translate-x-4 md:translate-x-0">
                 <div className="relative z-20">
                   <div className="bg-white border-2 border-gray-200 w-[60px] h-[60px] md:w-[80px] md:h-[80px] rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:border-red-500 group-hover:border-red-500">
                     <a

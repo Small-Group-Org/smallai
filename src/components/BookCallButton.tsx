@@ -10,7 +10,7 @@ const BookCallButton: React.FC<BookCallButtonProps> = ({
   variant = "primary",
 }) => {
   const handleClick = () => {
-    window.open("https://calendly.com/your-calendly-link", "_blank");
+    window.open("https://calendly.com/prakarshgupta", "_blank");
   };
 
   const baseStyles =

@@ -1,12 +1,12 @@
 import { Youtube } from "lucide-react";
 import { FaDiscord, FaLinkedin, FaTwitter } from "react-icons/fa";
-import { Link as RouterLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
     <footer className="bg-white border-t border-black/5">
       <div className="container-custom py-8 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-0 md:gap-12">
           {/* Brand Column */}
           <div className="col-span-1 md:col-span-2">
             <h3 className="text-xl font-bold mb-1">Small AI</h3>
@@ -26,7 +26,7 @@ const Footer = () => {
               <div className="relative w-full max-w-[300px] md:max-w-none">
                 {/* SVG Connectors */}
                 <svg
-                  className="absolute top-[30px] right-0 w-full"
+                  className="absolute  right-0 w-full"
                   width="160"
                   height="80"
                   viewBox="0 0 160 80"
@@ -48,7 +48,7 @@ const Footer = () => {
                 </svg>
 
                 {/* Nodes Container */}
-                <div className="flex flex-row justify-center md:justify-end gap-6 md:gap-12 pt-8 md:pr-24">
+                <div className="flex flex-row justify-center md:justify-end gap-6 md:gap-12 md:pr-24">
                   {/* YouTube Node */}
                   <div className="relative group">
                     <div className="relative z-20">
@@ -92,7 +92,7 @@ const Footer = () => {
                     <div className="relative z-20">
                       <div className="bg-white border-2 border-gray-200 w-[50px] h-[50px] md:w-[60px] md:h-[60px] rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:border-[#1DA1F2] group-hover:border-[#1DA1F2]">
                         <a
-                          href="https://twitter.com/small_ai"
+                          href="https://x.com/smallgrp"
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-gray-600 hover:text-[#1DA1F2] transition-colors flex flex-col items-center justify-center h-full gap-1 group-hover:text-[#1DA1F2]"
@@ -111,7 +111,7 @@ const Footer = () => {
                     <div className="relative z-20">
                       <div className="bg-white border-2 border-gray-200 w-[50px] h-[50px] md:w-[60px] md:h-[60px] rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:border-[#0077B5] group-hover:border-[#0077B5]">
                         <a
-                          href="https://www.linkedin.com/company/small-ai"
+                          href="https://www.linkedin.com/company/smallgrp/"
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-gray-600 hover:text-[#0077B5] transition-colors flex flex-col items-center justify-center h-full gap-1 group-hover:text-[#0077B5]"
@@ -137,18 +137,18 @@ const Footer = () => {
             </p>
           </div>
           <div className="flex items-center space-x-6">
-            <a
-              href="/privacy"
+            <Link
+              to="/privacy"
               className="text-sm text-gray-600 hover:text-black transition-colors"
             >
               Privacy Policy
-            </a>
-            <a
-              href="/terms"
+            </Link>
+            <Link
+              to="/terms"
               className="text-sm text-gray-600 hover:text-black transition-colors"
             >
               Terms of Service
-            </a>
+            </Link>
           </div>
         </div>
       </div>
