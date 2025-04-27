@@ -153,7 +153,7 @@ const PartnersSection = () => {
                 key={tech.id}
                 className="flex-shrink-0 flex items-center justify-center p-4 transition-all will-change-transform"
               >
-                <div className="bg-white rounded-2xl p-4 transition-all">
+                <div className="bg-white rounded-2xl p-2 transition-all">
                   <img
                     src={tech.logo}
                     alt={tech.name}

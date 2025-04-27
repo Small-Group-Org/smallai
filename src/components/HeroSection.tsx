@@ -155,14 +155,9 @@ const HeroSection = () => {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="#contact"
+              href="https://calendly.com/prakarshgupta"
               className="btn-primary flex items-center justify-center gap-2 group"
-              onClick={(e) => {
-                e.preventDefault();
-                document
-                  .getElementById("contact")
-                  ?.scrollIntoView({ behavior: "smooth" });
-              }}
+              target="_blank"
             >
               Book a Discovery Call
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
