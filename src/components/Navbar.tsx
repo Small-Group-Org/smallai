@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -24,7 +23,11 @@ const Navbar = () => {
     >
       <div className="container-custom py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center">
-          <span className="text-2xl font-bold text-black">Small AI</span>
+          <img 
+            src="/logo.png" 
+            alt="Small AI" 
+            className="h-10 w-auto"
+          />
         </Link>
         
         {/* Desktop Navigation */}

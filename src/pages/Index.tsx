@@ -7,6 +7,7 @@ import PartnersSection from "@/components/PartnersSection";
 import BookCallButton from "@/components/BookCallButton";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import WhatsAppWidget from "@/components/WhatsAppWidget";
 
 const Index = () => {
   return (
@@ -32,6 +33,7 @@ const Index = () => {
         </section>
       </main>
       <Footer />
+      <WhatsAppWidget />
     </div>
   );
 };
