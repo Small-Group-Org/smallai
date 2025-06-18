@@ -1,197 +1,210 @@
-import { ArrowRight, Youtube } from "lucide-react";
+
+import { ArrowRight, Youtube, Sparkles, Zap, Code, Brain } from "lucide-react";
 import { FaDiscord } from "react-icons/fa";
 import { useEffect, useRef, useState } from "react";
 
 const HeroSection = () => {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isVisible, setIsVisible] = useState(false);
-  const observerRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         setIsVisible(entry.isIntersecting);
       },
-      {
-        threshold: 0.1,
-        rootMargin: "-100px 0px 0px 0px",
-      }
+      { threshold: 0.1 }
     );
 
-    if (observerRef.current) {
-      observer.observe(observerRef.current);
+    if (heroRef.current) {
+      observer.observe(heroRef.current);
     }
 
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  const FloatingElement = ({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) => (
+    <div
+      className={`absolute animate-float ${className}`}
+      style={{
+        animationDelay: `${delay}s`,
+        transform: `translate(${mousePosition.x * 0.02}px, ${mousePosition.y * 0.02}px)`,
+        transition: "transform 0.1s ease-out",
+      }}
+    >
+      {children}
+    </div>
+  );
+
   return (
-    <section className="min-h-screen relative overflow-hidden hero-pattern pt-24">
-      <div className="absolute inset-0 bg-gradient-to-b from-white/50 to-white/95"></div>
+    <section ref={heroRef} className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 pt-24">
+      {/* Animated Background */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%239C92AC" fill-opacity="0.1"%3E%3Ccircle cx="30" cy="30" r="1"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-40"></div>
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }}></div>
+      </div>
 
-      <div
-        ref={observerRef}
-        className="container-custom relative z-10 flex flex-col items-center justify-center py-20 md:py-32"
-      >
+      {/* Floating Elements */}
+      <FloatingElement delay={0} className="top-20 left-10 z-10">
+        <div className="w-16 h-16 bg-gradient-to-r from-purple-400 to-pink-400 rounded-2xl flex items-center justify-center shadow-2xl hover:scale-110 transition-transform duration-300">
+          <Brain className="w-8 h-8 text-white" />
+        </div>
+      </FloatingElement>
+
+      <FloatingElement delay={1} className="top-40 right-20 z-10">
+        <div className="w-12 h-12 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-xl flex items-center justify-center shadow-2xl hover:scale-110 transition-transform duration-300">
+          <Code className="w-6 h-6 text-white" />
+        </div>
+      </FloatingElement>
+
+      <FloatingElement delay={2} className="bottom-40 left-20 z-10">
+        <div className="w-14 h-14 bg-gradient-to-r from-green-400 to-emerald-400 rounded-2xl flex items-center justify-center shadow-2xl hover:scale-110 transition-transform duration-300">
+          <Zap className="w-7 h-7 text-white" />
+        </div>
+      </FloatingElement>
+
+      <FloatingElement delay={0.5} className="top-60 right-40 z-10">
+        <div className="w-10 h-10 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform duration-300">
+          <Sparkles className="w-5 h-5 text-white" />
+        </div>
+      </FloatingElement>
+
+      <div className="container-custom relative z-20 flex flex-col items-center justify-center py-20 md:py-32">
         {/* Social Media Nodes */}
-        <div
-          className={`absolute md:right-[-150px] right-[-20px] top-[-40px] md:top-24 z-50 transition-all duration-500 transform ${
-            isVisible
-              ? "translate-x-0 opacity-100"
-              : "translate-x-full opacity-0"
-          }`}
-        >
+        <div className={`absolute right-4 md:right-20 top-10 md:top-24 transition-all duration-1000 ${isVisible ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"}`}>
           <div className="relative">
-            {/* SVG Connectors for Desktop */}
-            <svg
-              className="absolute top-0 right-[-56px] md:right-[-76px] h-full hidden md:block"
-              width="240"
-              height="160"
-              viewBox="0 0 240 160"
-              preserveAspectRatio="none"
-            >
-              {/* Common starting point and first curve */}
+            {/* Curved Connection Lines */}
+            <svg className="absolute top-12 -left-20 w-24 h-16 hidden md:block" viewBox="0 0 100 60">
               <path
-                d="M120,80 C100,80 80,30 10,30"
-                stroke="#E2E8F0"
+                d="M 0 30 Q 25 10 50 30 Q 75 50 100 30"
+                stroke="url(#gradient1)"
                 strokeWidth="2"
                 fill="none"
-                className="transition-all duration-300 hover:stroke-red-500"
+                className="animate-draw-line"
               />
-              {/* Second curve from the same point */}
-              <path
-                d="M120,80 C100,80 80,110 10,110"
-                stroke="#E2E8F0"
-                strokeWidth="2"
-                fill="none"
-                className="transition-all duration-300 hover:stroke-[#5865F2]"
-              />
-              {/* Connection point circle */}
-              <circle cx="120" cy="80" r="3" fill="#E2E8F0" />
+              <defs>
+                <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#8B5CF6" />
+                  <stop offset="100%" stopColor="#06B6D4" />
+                </linearGradient>
+              </defs>
             </svg>
 
-            {/* Mobile Connectors - Horizontal */}
-            <svg
-              className="absolute top-[30px] right-0 w-full block md:hidden"
-              width="160"
-              height="80"
-              viewBox="0 0 160 80"
-              preserveAspectRatio="none"
-            >
-              {/* Common starting point and sequential connection */}
-              <path
-                d="M160,40 C140,40 120,30 90,30 L50,30"
-                stroke="#E2E8F0"
-                strokeWidth="2"
-                fill="none"
-                className="transition-all duration-300"
-              />
-              {/* Connection to second node */}
-              <path
-                d="M90,30 C70,30 60,30 10,30"
-                stroke="#E2E8F0"
-                strokeWidth="2"
-                fill="none"
-                className="transition-all duration-300"
-              />
-              {/* Connection point circle */}
-              <circle cx="160" cy="40" r="3" fill="#E2E8F0" />
-            </svg>
-
-            {/* Nodes Container */}
-            <div className="flex md:flex-col flex-row md:gap-8 gap-12 pt-8 md:pt-0 pr-12 md:pr-[150px]">
+            <div className="flex flex-col gap-6">
               {/* YouTube Node */}
-              <div className="relative group translate-x-4 md:translate-x-0">
-                <div className="relative z-20">
-                  <div className="bg-white border-2 border-gray-200 w-[60px] h-[60px] md:w-[80px] md:h-[80px] rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:border-red-500 group-hover:border-red-500">
-                    <a
-                      href="https://www.youtube.com/@smallgrp"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-gray-600 hover:text-red-500 transition-colors flex flex-col items-center justify-center h-full gap-1 md:gap-2 group-hover:text-red-500"
-                    >
-                      <Youtube className="w-6 h-6 md:w-8 md:h-8" />
-                      <span className="text-[10px] md:text-xs font-medium">
-                        YouTube
-                      </span>
-                    </a>
-                  </div>
+              <div className="group relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-pink-500 rounded-2xl blur opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 w-16 h-16 md:w-20 md:h-20 rounded-2xl shadow-2xl hover:shadow-red-500/25 transition-all duration-500 group-hover:scale-110 group-hover:rotate-3">
+                  <a
+                    href="https://www.youtube.com/@smallgrp"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex flex-col items-center justify-center h-full text-white hover:text-red-400 transition-colors group"
+                  >
+                    <Youtube className="w-7 h-7 md:w-9 md:h-9 mb-1" />
+                    <span className="text-[8px] md:text-[10px] font-medium opacity-90">YouTube</span>
+                  </a>
                 </div>
               </div>
 
               {/* Discord Node */}
-              <div className="relative group">
-                <div className="relative z-20">
-                  <div className="bg-white border-2 border-gray-200 w-[60px] h-[60px] md:w-[80px] md:h-[80px] rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:border-[#5865F2] group-hover:border-[#5865F2]">
-                    <a
-                      href="https://discord.gg/u6fvHes5CW"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-gray-600 hover:text-[#5865F2] transition-colors flex flex-col items-center justify-center h-full gap-1 md:gap-2 group-hover:text-[#5865F2]"
-                    >
-                      <FaDiscord className="w-6 h-6 md:w-8 md:h-8" />
-                      <span className="text-[10px] md:text-xs font-medium">
-                        Discord
-                      </span>
-                    </a>
-                  </div>
+              <div className="group relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl blur opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 w-16 h-16 md:w-20 md:h-20 rounded-2xl shadow-2xl hover:shadow-indigo-500/25 transition-all duration-500 group-hover:scale-110 group-hover:-rotate-3">
+                  <a
+                    href="https://discord.gg/u6fvHes5CW"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex flex-col items-center justify-center h-full text-white hover:text-indigo-400 transition-colors group"
+                  >
+                    <FaDiscord className="w-7 h-7 md:w-9 md:h-9 mb-1" />
+                    <span className="text-[8px] md:text-[10px] font-medium opacity-90">Discord</span>
+                  </a>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="text-center max-w-4xl mx-auto">
-          <h1 className="text-4xl md:text-6xl font-extrabold text-black mb-4">
-            Streamline. Scale. Succeed.
+        {/* Main Content */}
+        <div className={`text-center max-w-5xl mx-auto transition-all duration-1000 delay-300 ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}>
+          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full px-6 py-2 mb-8 hover:bg-white/20 transition-all duration-300">
+            <Sparkles className="w-4 h-4 text-yellow-400" />
+            <span className="text-white/90 text-sm font-medium">AI-Powered Business Solutions</span>
+          </div>
+
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-200 to-cyan-200 mb-6 leading-tight">
+            Transform Your
+            <span className="block bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent animate-pulse">
+              Business Today
+            </span>
           </h1>
-          <p className="text-3xl md:text-5xl font-extrabold text-black mb-6">
-            Power Your Business with AI today.
+
+          <p className="text-xl md:text-2xl text-white/80 mb-12 max-w-3xl mx-auto leading-relaxed">
+            Unlock the power of AI automation to streamline operations, boost efficiency, and accelerate growth with cutting-edge intelligent solutions.
           </p>
 
-          <p className="text-lg md:text-xl text-gray-600 mb-12">
-            Transform your operations with intelligent AI solutions that drive
-            efficiency, reduce costs, and accelerate your business growth.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
             <a
               href="https://calendly.com/prakarshgupta"
-              className="btn-primary flex items-center justify-center gap-2 group"
+              className="group relative inline-flex items-center justify-center gap-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-2xl py-4 px-8 text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25"
               target="_blank"
             >
-              Book a Discovery Call
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              <span>Start Your AI Journey</span>
+              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
             </a>
             <a
               href="#services"
-              className="btn-secondary"
+              className="group inline-flex items-center justify-center gap-3 bg-white/10 backdrop-blur-xl border border-white/20 text-white font-bold rounded-2xl py-4 px-8 text-lg transition-all duration-300 hover:bg-white/20 hover:scale-105"
               onClick={(e) => {
                 e.preventDefault();
-                document
-                  .getElementById("services")
-                  ?.scrollIntoView({ behavior: "smooth" });
+                document.getElementById("services")?.scrollIntoView({ behavior: "smooth" });
               }}
             >
-              Explore Our Services
+              <span>Explore Solutions</span>
             </a>
           </div>
-        </div>
 
-        <div className="mt-16 w-full max-w-4xl mx-auto bg-white rounded-2xl p-8 border border-black/10 shadow-lg animate-fade-in overflow-hidden">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            <div className="p-4">
-              <h3 className="text-3xl font-bold text-black mb-2">30+</h3>
-              <p className="text-gray-600">Projects Completed</p>
-            </div>
-            <div className="p-4">
-              <h3 className="text-3xl font-bold text-black mb-2">10x</h3>
-              <p className="text-gray-600">Average Client ROI</p>
-            </div>
-            <div className="p-4">
-              <h3 className="text-3xl font-bold text-black mb-2">95%</h3>
-              <p className="text-gray-600">Client Satisfaction</p>
-            </div>
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            {[
+              { number: "50+", label: "AI Projects Delivered", color: "from-purple-500 to-pink-500" },
+              { number: "300%", label: "Average ROI Increase", color: "from-blue-500 to-cyan-500" },
+              { number: "24/7", label: "Automated Operations", color: "from-green-500 to-emerald-500" }
+            ].map((stat, index) => (
+              <div
+                key={index}
+                className={`group relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all duration-500 hover:scale-105 hover:-translate-y-2 ${isVisible ? "animate-fade-in" : ""}`}
+                style={{ animationDelay: `${0.6 + index * 0.2}s` }}
+              >
+                <div className={`absolute inset-0 bg-gradient-to-r ${stat.color} rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-300`}></div>
+                <div className="relative">
+                  <h3 className={`text-3xl md:text-4xl font-black bg-gradient-to-r ${stat.color} bg-clip-text text-transparent mb-2`}>
+                    {stat.number}
+                  </h3>
+                  <p className="text-white/70 font-medium">{stat.label}</p>
+                </div>
+              </div>
+            ))}
           </div>
+        </div>
+      </div>
+
+      {/* Scroll Indicator */}
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+        <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
+          <div className="w-1 h-3 bg-white/50 rounded-full mt-2 animate-pulse"></div>
         </div>
       </div>
     </section>

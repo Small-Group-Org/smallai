@@ -62,32 +62,112 @@
   }
   
   .btn-primary {
-    @apply bg-white text-black font-medium rounded-full py-3 px-6 border border-black/10
-           transition-all hover:bg-black hover:text-white hover:translate-y-[-2px] 
-           hover:shadow-md active:translate-y-0;
+    @apply bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-2xl py-3 px-6
+           transition-all hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 
+           hover:from-purple-600 hover:to-pink-600 active:scale-95;
   }
   
   .btn-secondary {
-    @apply bg-black text-white font-medium border border-black rounded-full py-3 px-6 
-           transition-all hover:bg-white hover:text-black hover:translate-y-[-2px] 
-           hover:shadow-sm active:translate-y-0;
+    @apply bg-white/10 backdrop-blur-xl border border-white/20 text-white font-semibold rounded-2xl py-3 px-6 
+           transition-all hover:bg-white/20 hover:scale-105 hover:shadow-lg 
+           active:scale-95;
   }
 }
 
-.hero-pattern {
-  background-color: #ffffff;
-  background-image: radial-gradient(#00000008 1px, transparent 1px);
-  background-size: 25px 25px;
+/* Custom Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-10px) rotate(1deg); }
+  66% { transform: translateY(5px) rotate(-1deg); }
 }
 
-.glass-card {
+@keyframes draw-line {
+  0% { stroke-dasharray: 0 100; }
+  100% { stroke-dasharray: 100 0; }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
+  50% { box-shadow: 0 0 30px rgba(139, 92, 246, 0.6), 0 0 40px rgba(236, 72, 153, 0.3); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-draw-line {
+  animation: draw-line 2s ease-in-out infinite alternate;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+/* Gradient Background Animation */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+/* Smooth scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, #8B5CF6, #EC4899);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(45deg, #7C3AED, #DB2777);
+}
+
+/* Glass morphism effect */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.portfolio-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 2rem;
+/* Parallax effect */
+.parallax {
+  transform-style: preserve-3d;
+}
+
+/* Text reveal animation */
+@keyframes text-reveal {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-text-reveal {
+  animation: text-reveal 0.8s ease-out forwards;
+}
+
+/* Hover scale animation */
+.hover-scale {
+  transition: transform 0.3s ease;
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+/* Magnetic effect */
+.magnetic {
+  transition: transform 0.2s ease;
+}
+
+.magnetic:hover {
+  transform: translate(var(--x, 0), var(--y, 0));
 }
