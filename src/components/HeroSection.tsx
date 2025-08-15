@@ -1,6 +1,7 @@
 import { ArrowRight, Youtube } from "lucide-react";
 import { FaDiscord } from "react-icons/fa";
 import { useEffect, useRef, useState } from "react";
+import BookCallModal from "./BookCallModal";
 
 const HeroSection = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -154,14 +155,12 @@ const HeroSection = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="https://calendly.com/prakarshgupta"
-              className="btn-primary flex items-center justify-center gap-2 group"
-              target="_blank"
-            >
-              Book a Discovery Call
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </a>
+            <BookCallModal>
+              <button className="btn-primary flex items-center justify-center gap-2 group">
+                Book a Discovery Call
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </button>
+            </BookCallModal>
             <a
               href="#services"
               className="btn-secondary"

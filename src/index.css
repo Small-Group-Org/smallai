@@ -91,3 +91,97 @@
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 2rem;
 }
+
+/* Blog Content Styles */
+.blog-content {
+  @apply text-gray-800 leading-relaxed;
+}
+
+.blog-content h1 {
+  @apply text-3xl font-bold mt-8 mb-4 text-gray-900;
+}
+
+.blog-content h2 {
+  @apply text-2xl font-bold mt-6 mb-3 text-gray-900;
+}
+
+.blog-content h3 {
+  @apply text-xl font-semibold mt-5 mb-2 text-gray-900;
+}
+
+.blog-content h4 {
+  @apply text-lg font-semibold mt-4 mb-2 text-gray-900;
+}
+
+.blog-content p {
+  @apply mb-4 text-gray-700 leading-relaxed;
+}
+
+.blog-content ul, .blog-content ol {
+  @apply mb-4 ml-6;
+}
+
+.blog-content li {
+  @apply mb-2;
+}
+
+.blog-content a {
+  @apply text-brand-purple hover:text-brand-blue underline transition-colors;
+}
+
+.blog-content blockquote {
+  @apply border-l-4 border-brand-purple pl-4 my-4 italic text-gray-600;
+}
+
+.blog-content code {
+  @apply bg-gray-100 px-2 py-1 rounded text-sm font-mono;
+}
+
+.blog-content pre {
+  @apply bg-gray-100 p-4 rounded overflow-x-auto my-4;
+}
+
+.blog-content img {
+  @apply rounded-lg shadow-md my-6 max-w-full h-auto;
+}
+
+.blog-content table {
+  @apply w-full border-collapse my-4;
+}
+
+.blog-content th, .blog-content td {
+  @apply border border-gray-300 px-4 py-2;
+}
+
+.blog-content th {
+  @apply bg-gray-100 font-semibold;
+}
+
+/* Custom CTA blocks in blog content */
+.blog-content .blockquote-cta {
+  @apply my-6;
+}
+
+.blog-content .blockquote-cta blockquote {
+  @apply bg-gradient-to-r from-brand-purple/10 to-brand-blue/10 border-brand-purple p-6 rounded-lg;
+}
+
+.blog-content .cta-heading {
+  @apply text-lg font-bold text-gray-900 mb-2;
+}
+
+.blog-content .cta-text {
+  @apply text-gray-700 mb-4;
+}
+
+.blog-content .cta-button {
+  @apply inline-flex flex-col items-center justify-center bg-brand-purple text-white px-6 py-3 rounded-lg hover:bg-brand-blue transition-colors no-underline;
+}
+
+.blog-content .cta-text-line {
+  @apply font-semibold;
+}
+
+.blog-content .cta-phone-line {
+  @apply text-sm opacity-90;
+}

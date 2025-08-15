@@ -1,4 +1,5 @@
 import React from "react";
+import BookCallModal from "./BookCallModal";
 
 interface BookCallButtonProps {
   className?: string;
@@ -9,10 +10,6 @@ const BookCallButton: React.FC<BookCallButtonProps> = ({
   className = "",
   variant = "primary",
 }) => {
-  const handleClick = () => {
-    window.open("https://calendly.com/prakarshgupta", "_blank");
-  };
-
   const baseStyles =
     "px-6 py-3 rounded-lg font-semibold transition-all duration-300";
   const variantStyles =
@@ -21,12 +18,13 @@ const BookCallButton: React.FC<BookCallButtonProps> = ({
       : "border-2 border-primary text-primary hover:bg-primary hover:text-white";
 
   return (
-    <button
-      onClick={handleClick}
-      className={`${baseStyles} ${variantStyles} ${className}`}
-    >
-      Book a Discovery Call
-    </button>
+    <BookCallModal>
+      <button
+        className={`${baseStyles} ${variantStyles} ${className}`}
+      >
+        Book a Discovery Call
+      </button>
+    </BookCallModal>
   );
 };
 

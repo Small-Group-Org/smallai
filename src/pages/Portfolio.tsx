@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BookCallButton from "@/components/BookCallButton";
 import { projects } from "@/commons/constant";
+import { generateProjectSlug } from "@/lib/utils";
 
 const Portfolio = () => {
   useEffect(() => {
@@ -52,7 +53,14 @@ const Portfolio = () => {
                     />
                   </div>
                   <div className="p-6">
-                    <h3 className="text-xl font-bold mb-2">{project.title}</h3>
+                    <Link 
+                      to={`/portfolio/${generateProjectSlug(project.title)}`}
+                      className="block"
+                    >
+                      <h3 className="text-xl font-bold mb-2 hover:text-brand-purple transition-colors cursor-pointer">
+                        {project.title}
+                      </h3>
+                    </Link>
                     <p className="text-gray-600 mb-4">{project.description}</p>
                     <div className="flex flex-wrap gap-2 mb-4">
                       {project.tags.map((tag, index) => (
@@ -64,7 +72,7 @@ const Portfolio = () => {
                         </span>
                       ))}
                     </div>
-                    <div className="flex items-center justify-between mt-4">
+                    <div className="flex items-center mt-4">
                       <a
                         href={project.videoLink}
                         target="_blank"

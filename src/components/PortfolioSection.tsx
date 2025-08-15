@@ -1,32 +1,24 @@
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useState } from "react";
-import ProjectModal from "./ProjectModal";
 import { featuredProjects } from "@/commons/constant";
+import { generateProjectSlug } from "@/lib/utils";
+
 
 const PortfolioSection = () => {
-  const [selectedProject, setSelectedProject] = useState<
-    (typeof featuredProjects)[0] | null
-  >(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   const handleViewAllClick = () => {
     window.scrollTo(0, 0);
   };
-
-  const handleProjectClick = (project: (typeof featuredProjects)[0]) => {
-    setSelectedProject(project);
-    setIsModalOpen(true);
-  };
-
+  
   return (
     <section className="section-padding bg-gray-50">
       <div className="container-custom">
         <div className="flex flex-col md:flex-row justify-between items-center mb-12">
           <div>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Our Work</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Our Products
+            </h2>
             <p className="text-lg text-gray-600 max-w-2xl">
-              Explore our portfolio of AI automation projects delivering real
+              Explore our portfolio of AI automation products delivering real
               business results.
             </p>
           </div>
@@ -36,7 +28,7 @@ const PortfolioSection = () => {
               className="btn-primary flex items-center"
               onClick={handleViewAllClick}
             >
-              View All Projects <ArrowRight className="ml-2 h-4 w-4" />
+              View All Products <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </div>
         </div>
@@ -67,23 +59,17 @@ const PortfolioSection = () => {
                     </span>
                   ))}
                 </div>
-                <button
-                  onClick={() => handleProjectClick(project)}
+                <Link
+                  to={`/portfolio/${generateProjectSlug(project.title)}`}
                   className="inline-flex items-center text-brand-purple font-medium hover:underline"
                 >
                   View Details <ArrowRight className="ml-1 h-4 w-4" />
-                </button>
+                </Link>
               </div>
             </div>
           ))}
         </div>
       </div>
-
-      <ProjectModal
-        project={selectedProject}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
     </section>
   );
 };

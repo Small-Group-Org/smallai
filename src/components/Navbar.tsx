@@ -35,10 +35,16 @@ const Navbar = () => {
           <Link to="/" className="text-sm font-medium text-black hover:text-brand-purple transition-colors">
             Home
           </Link>
-          <Link to="/portfolio" className="text-sm font-medium text-black hover:text-brand-purple transition-colors">
+          {/* <Link to="/portfolio" className="text-sm font-medium text-black hover:text-brand-purple transition-colors">
             What We've Built
+          </Link> */}
+          <Link to="/portfolio/seo-blog-writer" className="text-sm font-medium text-black hover:text-brand-purple transition-colors">
+            SEO Blog Writer
           </Link>
-          <a 
+          <Link to="/portfolio/social-media-automation" className="text-sm font-medium text-black hover:text-brand-purple transition-colors">
+            Social Media Automation
+          </Link>
+          {/* <a 
             href="#services" 
             className="text-sm font-medium text-black hover:text-brand-purple transition-colors"
             onClick={(e) => {
@@ -47,7 +53,7 @@ const Navbar = () => {
             }}
           >
             Why Us
-          </a>
+          </a> */}
           <a 
             href="#contact" 
             className="btn-primary text-sm px-4 py-2"

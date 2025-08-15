@@ -17,7 +17,7 @@ const Index = () => {
         <HeroSection />
         <ServicesSection />
         <PortfolioSection />
-        <TestimonialsSection />
+        {/* <TestimonialsSection /> */}
         <PartnersSection />
         <section id="contact" className="section-padding bg-gray-50">
           <div className="container-custom text-center">
