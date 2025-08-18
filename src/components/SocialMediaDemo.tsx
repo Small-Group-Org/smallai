@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Play, CheckCircle, AlertCircle, ExternalLink } from "lucide-react";
+import { Loader2, Play, CheckCircle, AlertCircle, ExternalLink, RefreshCw, Clock, Linkedin, Twitter, Instagram } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface SocialMediaResult {
@@ -12,56 +12,242 @@ interface SocialMediaResult {
   generated_image: string;
 }
 
+interface JobStatus {
+  status: 'processing' | 'completed' | 'failed' | 'not_found';
+  result?: SocialMediaResult;
+  message?: string;
+}
+
 const SocialMediaDemo = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<SocialMediaResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [jobId, setJobId] = useState<string | null>(null);
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [pollCount, setPollCount] = useState(0);
+  const pollingRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const startTimeRef = useRef<number | null>(null);
   const { toast } = useToast();
+
+  const clearPolling = () => {
+    if (pollingRef.current) {
+      clearInterval(pollingRef.current);
+      pollingRef.current = null;
+    }
+  };
+
+  const clearTimer = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  };
+
+  const startTimer = () => {
+    startTimeRef.current = Date.now();
+    timerRef.current = setInterval(() => {
+      if (startTimeRef.current) {
+        setElapsedTime(Math.floor((Date.now() - startTimeRef.current) / 1000));
+      }
+    }, 1000);
+  };
+
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const checkJobStatus = async (currentJobId: string) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_N8N_WEBHOOK_SOCIAL_CHECK}/social-media-check?jobId=${currentJobId}`,
+        {
+          method: 'GET',
+        }
+      );
+      
+      if (!response.ok) {
+        console.warn('Social media polling failed, will retry...');
+        return;
+      }
+
+      const data: JobStatus = await response.json();
+      setPollCount(prev => prev + 1);
+      
+      if (data.status === 'completed' && data.result) {
+        clearPolling();
+        clearTimer();
+        // Map the result structure from your workflow
+        setResult({
+          linkedin_post: data.result.linkedin_post,
+          twitter_post: data.result.twitter_post, 
+          instagram_post: data.result.instagram_post,
+          generated_image: data.result.generated_image
+        });
+        setIsLoading(false);
+        setJobId(null);
+        setElapsedTime(0);
+        setPollCount(0);
+        toast({
+          title: "Success!",
+          description: "Social media content generated successfully",
+        });
+      } else if (data.status === 'failed') {
+        clearPolling();
+        clearTimer();
+        setError(data.message || 'Social media generation failed');
+        setIsLoading(false);
+        setJobId(null);
+        setElapsedTime(0);
+        setPollCount(0);
+      } else if (data.status === 'not_found') {
+        clearPolling();
+        clearTimer();
+        setError('Job not found. It may have expired.');
+        setIsLoading(false);
+        setJobId(null);
+        setElapsedTime(0);
+        setPollCount(0);
+      }
+    } catch (err) {
+      console.warn('Social media polling request failed, will retry...', err);
+    }
+  };
 
   const triggerWorkflow = async () => {
     setIsLoading(true);
     setError(null);
     setResult(null);
+    setJobId(null);
+    setElapsedTime(0);
+    setPollCount(0);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_N8N_WEBHOOK_URL}/social-media`, {
-        method: 'GET',
-        headers: {
+      const response = await fetch(`${import.meta.env.VITE_N8N_WEBHOOK_SOCIAL}/social-media-start`, {
+        method: 'POST',
+        headers: { 
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ 
+          timestamp: Date.now(),
+          userAgent: navigator.userAgent
+        })
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`Failed to start social media workflow: ${response.status} ${response.statusText}`);
       }
 
-      const data = await response.json();
-      console.log(data);
+      const result = await response.json();
       
-      if (data.error) {
-        throw new Error(data.error);
+      if (!result.jobId) {
+        throw new Error('No job ID returned from social media workflow');
       }
-      console.log(data);
-      setResult(data);
-      toast({
-        title: "Success!",
-        description: "Social media content generated successfully",
-      });
+
+      setJobId(result.jobId);
+      startTimer();
+
+      // Start polling every 15 seconds for social media (longer process)
+      pollingRef.current = setInterval(() => {
+        checkJobStatus(result.jobId);
+      }, 5000);
+
+      // Initial check after 30 seconds
+      setTimeout(() => {
+        checkJobStatus(result.jobId);
+      }, 30000);
+
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+      const errorMessage = err instanceof Error ? err.message : 'Failed to start social media workflow';
       setError(errorMessage);
+      setIsLoading(false);
+      clearTimer();
       toast({
         title: "Error",
         description: errorMessage,
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
+  const retryLastJob = () => {
+    if (jobId) {
+      setError(null);
+      setIsLoading(true);
+      startTimer();
+      pollingRef.current = setInterval(() => {
+        checkJobStatus(jobId);
+      }, 15000);
+      checkJobStatus(jobId);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      clearPolling();
+      clearTimer();
+    };
+  }, []);
+
+  // Auto-stop after 5 minutes (social media takes longer)
+  useEffect(() => {
+    if (elapsedTime > 300) { // 10 minutes
+      clearPolling();
+      clearTimer();
+      setError('Generation timed out after 10 minutes. The process may still be running in the background.');
+      setIsLoading(false);
+      setJobId(null);
+      setElapsedTime(0);
+      setPollCount(0);
+    }
+  }, [elapsedTime]);
+
   return (
     <div className="space-y-6">
+      {/* Social Media Links Section */}
+      <Card className="border-blue-200 bg-blue-50">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-blue-800">
+            Check out the post on our socials
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-4 justify-center sm:justify-start">
+            <a 
+              href="https://www.linkedin.com/in/smallgrptest/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <Linkedin className="h-5 w-5" />
+              <span className="font-medium">LinkedIn</span>
+            </a>
+            
+            <a 
+              href="https://x.com/smallGrpTest" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+            >
+              <Twitter className="h-5 w-5" />
+              <span className="font-medium">Twitter</span>
+            </a>
+            
+            <a 
+              href="https://www.instagram.com/smallgrptest/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-colors"
+            >
+              <Instagram className="h-5 w-5" />
+              <span className="font-medium">Instagram</span>
+            </a>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -101,37 +287,101 @@ const SocialMediaDemo = () => {
               )}
             </Button>
 
+            {/* Loading Status */}
             {isLoading && (
-              <div className="text-sm text-gray-600">
-                <p>⏳ This may take 30-60 seconds as we:</p>
-                <ul className="list-disc list-inside mt-2 space-y-1">
-                  <li>Search for trending AI automation news</li>
-                  <li>Scrape and analyze article content</li>
-                  <li>Generate platform-specific posts</li>
-                  <li>Create a relevant image</li>
+              <Card className="border-blue-200 bg-blue-50">
+                <CardContent className="pt-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-blue-600" />
+                      <span className="text-sm font-medium text-blue-800">
+                        Processing... {formatTime(elapsedTime)}
+                      </span>
+                    </div>
+                    <div className="text-sm text-blue-700">
+                      <p className="font-medium mb-2">Current Progress:</p>
+                      <ul className="list-disc list-inside space-y-1 text-xs">
+                        <li>Searching for trending AI automation news</li>
+                        <li>Scraping and analyzing article content</li>
+                        <li>Generating platform-specific posts with AI</li>
+                        <li>Creating a relevant image</li>
+                      </ul>
+                      <p className="mt-2 text-blue-600 font-medium">
+                        Expected completion: 4-6 minutes
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Error Section */}
+            {error && (
+              <Card className="border-red-200 bg-red-50">
+                <CardContent className="pt-4">
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
+                      <div className="flex-1">
+                        <h4 className="font-medium text-red-800 mb-1">Generation Failed</h4>
+                        <p className="text-sm text-red-700">{error}</p>
+                        <p className="text-xs text-red-600 mt-2">
+                          This might be due to rate limiting (max 2 requests per 2 hours), workflow maintenance, or API availability.
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {jobId && (
+                      <div className="flex gap-2">
+                        <Button 
+                          onClick={retryLastJob}
+                          variant="outline"
+                          size="sm"
+                          className="text-red-700 border-red-300 hover:bg-red-100"
+                        >
+                          <RefreshCw className="mr-1 h-3 w-3" />
+                          Retry Check
+                        </Button>
+                        <Button 
+                          onClick={triggerWorkflow}
+                          variant="outline"  
+                          size="sm"
+                          className="text-red-700 border-red-300 hover:bg-red-100"
+                        >
+                          Start New Job
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Info Section */}
+            {!isLoading && !result && !error && (
+              <div className="text-sm text-gray-600 space-y-2">
+                <p><strong>How it works:</strong></p>
+                <ul className="list-disc list-inside space-y-1 ml-2 text-xs">
+                  <li>Workflow starts immediately and runs in background</li>
+                  <li>Searches for trending AI business automation news</li>
+                  <li>Scrapes and analyzes multiple article sources</li>
+                  <li>Generates platform-optimized social media posts</li>
+                  <li>Creates relevant AI-generated imagery</li>
+                  <li>Content appears automatically when complete</li>
+                  <li>Keep this tab open during the 4-6 minute process</li>
                 </ul>
+                
+                <div className="mt-3 p-2 bg-gray-50 rounded text-xs">
+                  <strong>Note:</strong> Due to rate limiting, only 2 requests are allowed per 2-hour window. 
+                  The generation process typically takes 4-6 minutes for comprehensive content.
+                </div>
               </div>
             )}
           </div>
         </CardContent>
       </Card>
 
-      {error && (
-        <Card className="border-red-200 bg-red-50">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2 text-red-700">
-              <AlertCircle className="h-5 w-5" />
-              <p className="font-medium">Error occurred:</p>
-            </div>
-            <p className="text-red-600 mt-1">{error}</p>
-                         <p className="text-sm text-red-500 mt-2">
-               This might be due to rate limiting (max 2 requests per 2 hours), workflow maintenance, or API availability. 
-               Please try again later or <strong>contact us for a live demo</strong>.
-             </p>
-          </CardContent>
-        </Card>
-      )}
-
+      {/* Results Section */}
       {result && (
         <div className="space-y-4">
           <div className="flex items-center gap-2 text-green-700">
@@ -143,64 +393,68 @@ const SocialMediaDemo = () => {
             {/* LinkedIn Post */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm font-medium text-blue-600">LinkedIn Post</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  <a 
+                    href="https://www.linkedin.com/in/smallgrptest/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline flex items-center justify-between w-full"
+                  >
+                    LinkedIn Post
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                </CardTitle>
               </CardHeader>
-                             <CardContent>
-                 <p className="text-sm whitespace-pre-wrap">{result.linkedin_post}</p>
-               </CardContent>
+              <CardContent>
+                <p className="text-sm whitespace-pre-wrap">{result.linkedin_post}</p>
+              </CardContent>
             </Card>
 
             {/* Twitter Post */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm font-medium text-sky-500">Twitter Post</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  <a 
+                    href="https://x.com/smallGrpTest" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-sky-500 hover:underline flex items-center justify-between w-full"
+                  >
+                    Twitter Post
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm whitespace-pre-wrap">{result.twitter_post}</p>
               </CardContent>
             </Card>
 
-                         {/* Instagram Post */}
+                                     {/* Instagram Post */}
              <Card>
                <CardHeader>
-                 <CardTitle className="text-sm font-medium text-pink-600">Instagram Post</CardTitle>
+                 <CardTitle className="text-sm font-medium">
+                   <a 
+                     href="https://www.instagram.com/smallgrptest/" 
+                     target="_blank" 
+                     rel="noopener noreferrer"
+                     className="text-pink-600 hover:underline flex items-center justify-between w-full"
+                   >
+                     Instagram Post
+                     <ExternalLink className="h-4 w-4" />
+                   </a>
+                 </CardTitle>
                </CardHeader>
-               <CardContent>
-                 {result.instagram_post ? (
-                   <p className="text-sm whitespace-pre-wrap">{result.instagram_post}</p>
-                 ) : (
-                   <p className="text-sm text-gray-500 italic">Instagram post generation is currently being updated in the workflow.</p>
-                 )}
-               </CardContent>
-             </Card>
-
-            {/* Generated Image */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm font-medium text-purple-600">Generated Image</CardTitle>
-              </CardHeader>
-                             <CardContent>
-                 {result.generated_image ? (
-                   <div className="space-y-2">
-                     <img 
-                       src={result.generated_image} 
-                       alt="Generated social media image" 
-                       className="w-full h-48 object-cover rounded-lg"
-                     />
-                     <a 
-                       href={result.generated_image} 
-                       target="_blank" 
-                       rel="noopener noreferrer"
-                       className="inline-flex items-center text-sm text-purple-600 hover:underline"
-                     >
-                       View full image <ExternalLink className="ml-1 h-3 w-3" />
-                     </a>
-                   </div>
-                 ) : (
-                   <p className="text-sm text-gray-500">No image generated</p>
-                 )}
-               </CardContent>
+              <CardContent>
+                {result.instagram_post ? (
+                  <p className="text-sm whitespace-pre-wrap">{result.instagram_post}</p>
+                ) : (
+                  <p className="text-sm text-gray-500 italic">Instagram post generation is currently being updated in the workflow.</p>
+                )}
+              </CardContent>
             </Card>
+
+
           </div>
 
           <Card className="bg-blue-50 border-blue-200">
@@ -217,4 +471,4 @@ const SocialMediaDemo = () => {
   );
 };
 
-export default SocialMediaDemo; 
+export default SocialMediaDemo;

@@ -12,6 +12,7 @@ const vapi = new Vapi(`${import.meta.env.VITE_VAPI_PUBLIC_API_KEY}`);
 const BookCallModal: React.FC<BookCallModalProps> = ({ children }) => {
   const [isVapiCalling, setIsVapiCalling] = useState(false);
   const [isRinging, setIsRinging] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCalendlyClick = () => {
     window.open("https://calendly.com/prakarshgupta", "_blank");
@@ -67,7 +68,12 @@ const BookCallModal: React.FC<BookCallModalProps> = ({ children }) => {
   }, []);
 
   return (
-    <Dialog>
+    <Dialog open={isModalOpen} onOpenChange={(open) => {
+      if (!open && (isVapiCalling || isRinging)) {
+        handleVAPIEnd();
+      }
+      setIsModalOpen(open);
+    }}>
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>

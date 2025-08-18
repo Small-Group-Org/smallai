@@ -44,6 +44,9 @@ const Navbar = () => {
           <Link to="/portfolio/social-media-automation" className="text-sm font-medium text-black hover:text-brand-purple transition-colors">
             Social Media Automation
           </Link>
+          <Link to="/portfolio/small-ai-voice-agent" className="text-sm font-medium text-black hover:text-brand-purple transition-colors">
+            Small AI Voice Agent
+          </Link>
           {/* <a 
             href="#services" 
             className="text-sm font-medium text-black hover:text-brand-purple transition-colors"
@@ -95,6 +98,13 @@ const Navbar = () => {
               onClick={() => setIsMenuOpen(false)}
             >
               What We've Built
+            </Link>
+            <Link 
+              to="/portfolio/small-ai-voice-agent" 
+              className="text-sm font-medium text-black hover:text-brand-purple p-2"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Voice Agent
             </Link>
             <a 
               href="#services" 

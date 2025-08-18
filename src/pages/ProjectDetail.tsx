@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import BookCallButton from "@/components/BookCallButton";
 import SocialMediaDemo from "@/components/SocialMediaDemo";
 import SeoBlogDemo from "@/components/SeoBlogDemo";
+import VapiVoiceDemo from "@/components/VapiVoiceDemo";
 import NotFound from "./NotFound";
 import { projects } from "@/commons/constant";
 import { generateProjectSlug } from "@/lib/utils";
@@ -96,6 +97,14 @@ const ProjectDetail = () => {
                   <div>
                     <h3 className="text-xl font-bold mb-4">Interactive Demo</h3>
                     <SeoBlogDemo />
+                  </div>
+                )}
+
+                {/* Interactive Demo for Small AI Voice Agent */}
+                {generateProjectSlug(project.title) === 'small-ai-voice-agent' && (
+                  <div>
+                    <h3 className="text-xl font-bold mb-4">Interactive Voice Demo</h3>
+                    <VapiVoiceDemo />
                   </div>
                 )}
 
