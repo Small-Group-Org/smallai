@@ -3,8 +3,8 @@ import { Play, Loader2, Clock, CheckCircle, AlertCircle, RefreshCw, ExternalLink
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+
+import { useNavigate, Link } from "react-router-dom";
 import { FALLBACK_BLOG } from "@/commons/constant";
 
 interface SeoBlogResult {
@@ -23,6 +23,13 @@ interface PreviousBlog {
   result_content: string;
 }
 
+interface StoredJobState {
+  jobId: string;
+  startTime: number;
+  pollCount: number;
+  generatedBlog?: { title: string; slug: string; content: string };
+}
+
 const SeoBlogDemo = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,11 +38,52 @@ const SeoBlogDemo = () => {
   const [pollCount, setPollCount] = useState(0);
   const [previousBlogs, setPreviousBlogs] = useState<PreviousBlog[]>([]);
   const [blogsLoading, setBlogsLoading] = useState(false);
+  const [generatedBlog, setGeneratedBlog] = useState<{ title: string; slug: string; content: string } | null>(null);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number | null>(null);
-  const { toast } = useToast();
+
   const navigate = useNavigate();
+
+  // localStorage keys
+  const JOB_STORAGE_KEY = 'seo_blog_job_state';
+
+  const saveJobState = (jobId: string, startTime: number, pollCount: number) => {
+    const jobState: StoredJobState = { jobId, startTime, pollCount, generatedBlog };
+    localStorage.setItem(JOB_STORAGE_KEY, JSON.stringify(jobState));
+  };
+
+  const loadJobState = (): StoredJobState | null => {
+    try {
+      const stored = localStorage.getItem(JOB_STORAGE_KEY);
+      if (stored) {
+        return JSON.parse(stored);
+      }
+    } catch (error) {
+      console.warn('Failed to load job state from localStorage:', error);
+    }
+    return null;
+  };
+
+  const clearJobState = () => {
+    localStorage.removeItem(JOB_STORAGE_KEY);
+  };
+
+  const clearJobStateKeepBlog = () => {
+    const existingJob = loadJobState();
+    if (existingJob?.generatedBlog) {
+      // Keep only the generated blog
+      const blogState: StoredJobState = { 
+        jobId: '', 
+        startTime: 0, 
+        pollCount: 0, 
+        generatedBlog: existingJob.generatedBlog 
+      };
+      localStorage.setItem(JOB_STORAGE_KEY, JSON.stringify(blogState));
+    } else {
+      localStorage.removeItem(JOB_STORAGE_KEY);
+    }
+  };
 
   const clearPolling = () => {
     if (pollingRef.current) {
@@ -128,11 +176,18 @@ const SeoBlogDemo = () => {
       }
 
       const data: JobStatus = await response.json();
-      setPollCount(prev => prev + 1);
+      const newPollCount = pollCount + 1;
+      setPollCount(newPollCount);
+      
+      // Save current job state
+      if (startTimeRef.current) {
+        saveJobState(currentJobId, startTimeRef.current, newPollCount);
+      }
       
       if (data.status === 'completed' && data.result) {
         clearPolling();
         clearTimer();
+        clearJobStateKeepBlog();
         
         const cleanTitle = data.result["blog-title"].replace(/^"|"$/g, '');
         
@@ -143,24 +198,23 @@ const SeoBlogDemo = () => {
           .replace(/-+/g, '-')
           .trim();
 
-        navigate(`/portfolio/seo-blog-writer/${slug}`, { 
-          state: { 
-            blogTitle: cleanTitle, 
-            blogContent: data.result.blog_content 
-          } 
-        });
+        // Store the generated blog information
+        setGeneratedBlog({ title: cleanTitle, slug, content: data.result.blog_content });
+
+        // Save job state with generated blog
+        if (startTimeRef.current) {
+          saveJobState(currentJobId, startTimeRef.current, newPollCount);
+        }
 
         setIsLoading(false);
         setJobId(null);
         setElapsedTime(0);
         setPollCount(0);
-        toast({
-          title: "Success!",
-          description: "SEO blog generated successfully",
-        });
+
       } else if (data.status === 'failed') {
         clearPolling();
         clearTimer();
+        clearJobState();
         setError(data.message || 'Blog generation failed');
         setIsLoading(false);
         setJobId(null);
@@ -169,6 +223,7 @@ const SeoBlogDemo = () => {
       } else if (data.status === 'not_found') {
         clearPolling();
         clearTimer();
+        clearJobState();
         setError('Job not found. It may have expired.');
         setIsLoading(false);
         setJobId(null);
@@ -186,6 +241,7 @@ const SeoBlogDemo = () => {
     setJobId(null);
     setElapsedTime(0);
     setPollCount(0);
+    setGeneratedBlog(null);
 
     try {
       const response = await fetch(`${import.meta.env.VITE_N8N_WEBHOOK_URL_BLOG}/seo-blog-start`, {
@@ -212,12 +268,15 @@ const SeoBlogDemo = () => {
       setJobId(result.jobId);
       startTimer();
 
+      // Save initial job state
+      saveJobState(result.jobId, Date.now(), 0);
+
       // Start polling every 10 seconds
       pollingRef.current = setInterval(() => {
         checkJobStatus(result.jobId);
       }, 10000);
 
-      // Initial check after 3 seconds
+      // Initial check after 5 seconds
       setTimeout(() => {
         checkJobStatus(result.jobId);
       }, 5000);
@@ -227,11 +286,7 @@ const SeoBlogDemo = () => {
       setError(errorMessage);
       setIsLoading(false);
       clearTimer();
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
+
     }
   };
 
@@ -244,13 +299,55 @@ const SeoBlogDemo = () => {
       startTimer();
       pollingRef.current = setInterval(() => {
         checkJobStatus(jobId);
-      }, 5000);
+      }, 10000);
       checkJobStatus(jobId);
     }
   };
 
   useEffect(() => {
     fetchPreviousBlogs();
+    
+    // Check for existing job on component mount
+    const existingJob = loadJobState();
+    if (existingJob) {
+      const timeSinceStart = Date.now() - existingJob.startTime;
+      const elapsedSeconds = Math.floor(timeSinceStart / 1000);
+      
+      // Always restore generated blog if it exists, regardless of job age
+      if (existingJob.generatedBlog) {
+        setGeneratedBlog(existingJob.generatedBlog);
+      }
+      
+      // Only resume active job if it's less than 7 minutes old
+      if (elapsedSeconds < 420) {
+        setJobId(existingJob.jobId);
+        setPollCount(existingJob.pollCount);
+        setElapsedTime(elapsedSeconds);
+        setIsLoading(true);
+        
+        // Restart timer from the saved start time
+        startTimeRef.current = existingJob.startTime;
+        timerRef.current = setInterval(() => {
+          if (startTimeRef.current) {
+            setElapsedTime(Math.floor((Date.now() - startTimeRef.current) / 1000));
+          }
+        }, 1000);
+        
+        // Resume polling
+        pollingRef.current = setInterval(() => {
+          checkJobStatus(existingJob.jobId);
+        }, 10000);
+        
+        // Immediate check
+        checkJobStatus(existingJob.jobId);
+        
+
+      } else {
+        // Job is too old, clear job state but keep generated blog
+        clearJobStateKeepBlog();
+      }
+    }
+    
     return () => {
       clearPolling();
       clearTimer();
@@ -259,38 +356,24 @@ const SeoBlogDemo = () => {
 
   // Auto-stop after 7 minutes (safety net)
   useEffect(() => {
-    if (elapsedTime > 420) { // 7 minutes
+    if (elapsedTime > 480) { // 7 minutes
       clearPolling();
       clearTimer();
+      clearJobStateKeepBlog();
       
-      // Navigate to fallback blog instead of showing error
-      const slug = FALLBACK_BLOG.title
-        .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .trim();
-
-      navigate(`/portfolio/seo-blog-writer/${slug}`, { 
-        state: { 
-          blogTitle: FALLBACK_BLOG.title, 
-          blogContent: FALLBACK_BLOG.content,
-          isFallback: true
-        } 
-      });
-
+      setError('Generation timed out after 8 minutes. The process may still be running in the background.');
       setIsLoading(false);
       setJobId(null);
       setElapsedTime(0);
       setPollCount(0);
       
     }
-  }, [elapsedTime, navigate, toast]);
+  }, [elapsedTime]);
 
   return (
     <div className="space-y-6">
       {/* Previous Blogs Section */}
-      {previousBlogs.length > 0 && (
+      {(previousBlogs.length > 0 || blogsLoading) && (
         <Card className="border-green-200 bg-green-50">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-green-800 flex items-center gap-2">
@@ -308,29 +391,39 @@ const SeoBlogDemo = () => {
                 <span className="ml-2 text-green-700">Loading previous blogs...</span>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {previousBlogs.map((blog, index) => (
-                  <Card 
-                    key={index}
-                    className="cursor-pointer hover:shadow-md transition-shadow border-green-300 bg-white"
-                    onClick={() => navigateToBlog(blog)}
+              <div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {previousBlogs.map((blog, index) => (
+                    <Card 
+                      key={index}
+                      className="cursor-pointer hover:shadow-md transition-shadow border-green-300 bg-white"
+                      onClick={() => navigateToBlog(blog)}
+                    >
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-sm font-medium text-green-800 flex items-center justify-between">
+                          <span className="line-clamp-2">{blog.result_title}</span>
+                          <ExternalLink className="h-4 w-4 flex-shrink-0 ml-2" />
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <p className="text-xs text-green-600 line-clamp-3">
+                          {blog.result_content.replace(/<[^>]*>/g, '').substring(0, 150)}...
+                        </p>
+                        <Badge variant="outline" className="mt-2 text-green-700 border-green-300">
+                          SEO Optimized
+                        </Badge>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+                <div className="flex justify-end mt-4">
+                  <Link
+                    to="/portfolio/articles"
+                    className="inline-flex items-center text-green-700 hover:text-green-800 font-medium transition-colors"
                   >
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-sm font-medium text-green-800 flex items-center justify-between">
-                        <span className="line-clamp-2">{blog.result_title}</span>
-                        <ExternalLink className="h-4 w-4 flex-shrink-0 ml-2" />
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                      <p className="text-xs text-green-600 line-clamp-3">
-                        {blog.result_content.replace(/<[^>]*>/g, '').substring(0, 150)}...
-                      </p>
-                      <Badge variant="outline" className="mt-2 text-green-700 border-green-300">
-                        SEO Optimized
-                      </Badge>
-                    </CardContent>
-                  </Card>
-                ))}
+                    View more →
+                  </Link>
+                </div>
               </div>
             )}
           </CardContent>
@@ -358,24 +451,43 @@ const SeoBlogDemo = () => {
               <Badge variant="secondary">Link Building</Badge>
             </div>
             
-            <Button 
-              onClick={triggerWorkflow} 
-              disabled={isLoading}
-              size="lg"
-              className="w-full sm:w-auto"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generating Blog Post...
-                </>
-              ) : (
-                <>
-                  <Play className="mr-2 h-4 w-4" />
-                  Generate SEO Blog Post
-                </>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button 
+                onClick={triggerWorkflow} 
+                disabled={isLoading}
+                size="lg"
+                className="w-full sm:w-auto"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Generating Blog Post...
+                  </>
+                ) : (
+                  <>
+                    <Play className="mr-2 h-4 w-4" />
+                    Generate SEO Blog Post
+                  </>
+                )}
+              </Button>
+
+              {generatedBlog && (
+                <Button 
+                  onClick={() => navigate(`/portfolio/seo-blog-writer/${generatedBlog.slug}`, {
+                    state: {
+                      blogTitle: generatedBlog.title,
+                      blogContent: generatedBlog.content
+                    }
+                  })}
+                  variant="outline"
+                  size="lg"
+                  className="w-full sm:w-auto"
+                >
+                  <BookOpen className="mr-2 h-4 w-4" />
+                  Check out the generated blog
+                </Button>
               )}
-            </Button>
+            </div>
 
             {/* Error Section */}
             {error && (

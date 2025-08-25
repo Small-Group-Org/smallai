@@ -29,6 +29,16 @@ export const featuredProjects = [
     tags: ["n8n Automation", "AI Content Generation", "Multi-Platform", "News Analysis", "Image Generation"],
     videoLink: "https://youtube.com/@smallgrp",
   },
+  {
+    id: 4,
+    title: "WhatsApp Voice Chat",
+    description:
+      "Intelligent WhatsApp voice assistant that provides instant customer support and automated responses through natural voice interactions.",
+    image:
+      "https://images.unsplash.com/photo-1557180295-76eee20ae8aa?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8&auto=format&fit=crop&w=500&q=80",
+    tags: ["WhatsApp", "Voice AI", "Customer Support", "Automation"],
+    videoLink: "https://youtube.com/@smallgrp",
+  },
 ];
 
 export const projects = [
@@ -64,6 +74,16 @@ export const projects = [
   },
   {
     id: 4,
+    title: "WhatsApp Voice Chat",
+    description:
+      "Intelligent WhatsApp voice assistant that provides instant customer support and automated responses through natural voice interactions. Perfect for businesses looking to enhance customer engagement through the world's most popular messaging platform.",
+    image:
+      "https://images.unsplash.com/photo-1557180295-76eee20ae8aa?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8&auto=format&fit=crop&w=500&q=80",
+    tags: ["WhatsApp", "Voice AI", "Customer Support", "Automation", "Messaging"],
+    videoLink: "https://youtube.com/@smallgrp",
+  },
+  {
+    id: 5,
     title: "Travel Voice Agent",
     description:
       "Intelligent voice agent that creates personalized travel itineraries and handles booking processes in real-time. Uses Vapi and Retell for natural voice interactions, making travel planning seamless and conversational.",
@@ -73,7 +93,7 @@ export const projects = [
     videoLink: "https://youtube.com/@smallgrp",
   },
   {
-    id: 5,
+    id: 6,
     title: "RAG AI Agent",
     description:
       "Advanced Retrieval-Augmented Generation system built with Supabase, providing context-aware responses by combining real-time data retrieval with AI generation. Perfect for knowledge bases and customer support.",
@@ -83,7 +103,7 @@ export const projects = [
     videoLink: "https://youtube.com/@smallgrp",
   },
   {
-    id: 6,
+    id: 7,
     title: "Voice + RAG AI Agent",
     description:
       "Combines the power of voice interaction with RAG capabilities, using Retell, Vapi, and Supabase. Creates a comprehensive solution for voice-based information retrieval and natural conversation.",
@@ -93,7 +113,7 @@ export const projects = [
     videoLink: "https://youtube.com/@smallgrp",
   },
   {
-    id: 7,
+    id: 8,
     title: "Freelance Hiring Automation",
     description:
       "End-to-end automation system built with n8n for streamlining the freelance hiring process. Automates job posting, candidate screening, interview scheduling, and onboarding workflows.",

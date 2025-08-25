@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft, ExternalLink, Phone } from "lucide-react";
 import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BookCallButton from "@/components/BookCallButton";
@@ -105,6 +106,25 @@ const ProjectDetail = () => {
                   <div>
                     <h3 className="text-xl font-bold mb-4">Interactive Voice Demo</h3>
                     <VapiVoiceDemo />
+                  </div>
+                )}
+
+                {/* Interactive Demo for WhatsApp Voice Chat */}
+                {generateProjectSlug(project.title) === 'whatsapp-voice-chat' && (
+                  <div>
+                    <h3 className="text-xl font-bold mb-4">Interactive Demo</h3>
+                    <div className="space-y-4">
+                      <p className="text-gray-600 mb-6">
+                        Experience our WhatsApp Voice Chat solution. Click the button below to start a WhatsApp voice call.
+                      </p>
+                      <Button
+                        onClick={() => window.open("https://wa.me/17744199996", "_blank")}
+                        className="h-16 px-12 text-xl font-semibold bg-[#25D366] hover:bg-[#20BA5C] text-white rounded-lg transition-all duration-300 flex items-center justify-center gap-3 group"
+                      >
+                        <Phone className="h-6 w-6 group-hover:scale-110 transition-transform" />
+                        WhatsApp Voice Call
+                      </Button>
+                    </div>
                   </div>
                 )}
 

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Play, CheckCircle, AlertCircle, ExternalLink, RefreshCw, Clock, Linkedin, Twitter, Instagram } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+
 
 interface SocialMediaResult {
   linkedin_post: string;
@@ -18,6 +18,12 @@ interface JobStatus {
   message?: string;
 }
 
+interface StoredJobState {
+  jobId: string;
+  startTime: number;
+  pollCount: number;
+}
+
 const SocialMediaDemo = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<SocialMediaResult | null>(null);
@@ -28,7 +34,31 @@ const SocialMediaDemo = () => {
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number | null>(null);
-  const { toast } = useToast();
+
+
+  // localStorage keys
+  const JOB_STORAGE_KEY = 'social_media_job_state';
+
+  const saveJobState = (jobId: string, startTime: number, pollCount: number) => {
+    const jobState: StoredJobState = { jobId, startTime, pollCount };
+    localStorage.setItem(JOB_STORAGE_KEY, JSON.stringify(jobState));
+  };
+
+  const loadJobState = (): StoredJobState | null => {
+    try {
+      const stored = localStorage.getItem(JOB_STORAGE_KEY);
+      if (stored) {
+        return JSON.parse(stored);
+      }
+    } catch (error) {
+      console.warn('Failed to load job state from localStorage:', error);
+    }
+    return null;
+  };
+
+  const clearJobState = () => {
+    localStorage.removeItem(JOB_STORAGE_KEY);
+  };
 
   const clearPolling = () => {
     if (pollingRef.current) {
@@ -74,11 +104,18 @@ const SocialMediaDemo = () => {
       }
 
       const data: JobStatus = await response.json();
-      setPollCount(prev => prev + 1);
+      const newPollCount = pollCount + 1;
+      setPollCount(newPollCount);
+      
+      // Save current job state
+      if (startTimeRef.current) {
+        saveJobState(currentJobId, startTimeRef.current, newPollCount);
+      }
       
       if (data.status === 'completed' && data.result) {
         clearPolling();
         clearTimer();
+        clearJobState();
         // Map the result structure from your workflow
         setResult({
           linkedin_post: data.result.linkedin_post,
@@ -90,13 +127,11 @@ const SocialMediaDemo = () => {
         setJobId(null);
         setElapsedTime(0);
         setPollCount(0);
-        toast({
-          title: "Success!",
-          description: "Social media content generated successfully",
-        });
+
       } else if (data.status === 'failed') {
         clearPolling();
         clearTimer();
+        clearJobState();
         setError(data.message || 'Social media generation failed');
         setIsLoading(false);
         setJobId(null);
@@ -105,6 +140,7 @@ const SocialMediaDemo = () => {
       } else if (data.status === 'not_found') {
         clearPolling();
         clearTimer();
+        clearJobState();
         setError('Job not found. It may have expired.');
         setIsLoading(false);
         setJobId(null);
@@ -149,6 +185,9 @@ const SocialMediaDemo = () => {
       setJobId(result.jobId);
       startTimer();
 
+      // Save initial job state
+      saveJobState(result.jobId, Date.now(), 0);
+
       // Start polling every 15 seconds for social media (longer process)
       pollingRef.current = setInterval(() => {
         checkJobStatus(result.jobId);
@@ -164,11 +203,7 @@ const SocialMediaDemo = () => {
       setError(errorMessage);
       setIsLoading(false);
       clearTimer();
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
+
     }
   };
 
@@ -185,17 +220,56 @@ const SocialMediaDemo = () => {
   };
 
   useEffect(() => {
+    // Check for existing job on component mount
+    const existingJob = loadJobState();
+    if (existingJob) {
+      const timeSinceStart = Date.now() - existingJob.startTime;
+      const elapsedSeconds = Math.floor(timeSinceStart / 1000);
+      
+      // Only resume if the job is less than 10 minutes old
+      if (elapsedSeconds < 600) {
+        setJobId(existingJob.jobId);
+        setPollCount(existingJob.pollCount);
+        setElapsedTime(elapsedSeconds);
+        setIsLoading(true);
+        
+        // Restart timer from the saved start time
+        startTimeRef.current = existingJob.startTime;
+        timerRef.current = setInterval(() => {
+          if (startTimeRef.current) {
+            setElapsedTime(Math.floor((Date.now() - startTimeRef.current) / 1000));
+          }
+        }, 1000);
+        
+        // Resume polling
+        pollingRef.current = setInterval(() => {
+          checkJobStatus(existingJob.jobId);
+        }, 5000);
+        
+        // Initial check after 30 seconds
+        setTimeout(() => {
+          checkJobStatus(existingJob.jobId);
+        }, 30000);
+        
+
+      } else {
+        // Job is too old, clear it
+        clearJobState();
+      }
+    }
+    
     return () => {
       clearPolling();
       clearTimer();
     };
   }, []);
 
-  // Auto-stop after 5 minutes (social media takes longer)
+  // Auto-stop after 10 minutes (social media takes longer)
   useEffect(() => {
-    if (elapsedTime > 300) { // 10 minutes
+    if (elapsedTime > 600) { // 10 minutes
       clearPolling();
       clearTimer();
+      clearJobState();
       setError('Generation timed out after 10 minutes. The process may still be running in the background.');
       setIsLoading(false);
       setJobId(null);
