@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, ExternalLink, Phone } from "lucide-react";
+import { ArrowLeft, Phone } from "lucide-react";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
@@ -125,21 +125,6 @@ const ProjectDetail = () => {
                         WhatsApp Voice Call
                       </Button>
                     </div>
-                  </div>
-                )}
-
-                {/* Video Link */}
-                {project.videoLink && (
-                  <div>
-                    <h3 className="text-xl font-bold mb-4">Demo Video</h3>
-                    <a
-                      href={project.videoLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center text-brand-purple font-medium hover:underline text-lg"
-                    >
-                      Watch Demo Video <ExternalLink className="ml-2 h-5 w-5" />
-                    </a>
                   </div>
                 )}
 

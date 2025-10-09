@@ -41,12 +41,12 @@ const Navbar = () => {
           <Link to="/portfolio/seo-blog-writer" className="text-sm font-medium text-black hover:text-brand-purple transition-colors">
             SEO Blog Writer
           </Link>
-          <Link to="/portfolio/social-media-automation" className="text-sm font-medium text-black hover:text-brand-purple transition-colors">
+          {/* <Link to="/portfolio/social-media-automation" className="text-sm font-medium text-black hover:text-brand-purple transition-colors">
             Social Media Automation
           </Link>
           <Link to="/portfolio/small-ai-voice-agent" className="text-sm font-medium text-black hover:text-brand-purple transition-colors">
             Small AI Voice Agent
-          </Link>
+          </Link> */}
           {/* <a 
             href="#services" 
             className="text-sm font-medium text-black hover:text-brand-purple transition-colors"

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import NotFound from "./NotFound";
 import BookCallModal from "@/components/BookCallModal";
+import BlogKeywordDensity from "@/components/BlogKeywordDensity";
 
 interface BlogData {
   blogTitle: string;
@@ -50,6 +51,13 @@ const BlogPost = () => {
         description: "Blog post URL has been copied to your clipboard",
       });
     }
+  };
+
+  // Function to extract text content from HTML for keyword analysis
+  const extractTextFromHTML = (html: string): string => {
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    return tempDiv.textContent || tempDiv.innerText || '';
   };
 
   // If no blog data, show 404 or loading state
@@ -103,13 +111,28 @@ const BlogPost = () => {
         {/* Blog Content */}
         <section className="py-8 md:py-12">
           <div className="container-custom">
-            <div className="max-w-4xl mx-auto">
-              <article className="prose prose-lg max-w-none">
-                <div 
-                  dangerouslySetInnerHTML={{ __html: blogData.blogContent }}
-                  className="blog-content"
-                />
-              </article>
+            <div className="max-w-7xl mx-auto">
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                {/* Main Blog Content */}
+                <div className="lg:col-span-3">
+                  <article className="prose prose-lg max-w-none">
+                    <div 
+                      dangerouslySetInnerHTML={{ __html: blogData.blogContent }}
+                      className="blog-content"
+                    />
+                  </article>
+                </div>
+                
+                {/* Keyword Density Sidebar */}
+                <div className="lg:col-span-1">
+                  <div className="sticky top-24">
+                    <BlogKeywordDensity 
+                      content={extractTextFromHTML(blogData.blogContent)}
+                      className="mb-6"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>

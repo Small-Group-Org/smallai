@@ -107,7 +107,7 @@ const Articles = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen h-[100vh]">
         <Navbar />
         <main className="pt-20">
           <div className="container-custom py-12">
