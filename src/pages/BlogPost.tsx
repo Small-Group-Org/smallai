@@ -112,9 +112,9 @@ const BlogPost = () => {
         <section className="py-8 md:py-12">
           <div className="container-custom">
             <div className="max-w-7xl mx-auto">
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-6 gap-8">
                 {/* Main Blog Content */}
-                <div className="lg:col-span-3">
+                <div className="lg:col-span-4">
                   <article className="prose prose-lg max-w-none">
                     <div 
                       dangerouslySetInnerHTML={{ __html: blogData.blogContent }}
@@ -124,7 +124,7 @@ const BlogPost = () => {
                 </div>
                 
                 {/* Keyword Density Sidebar */}
-                <div className="lg:col-span-1">
+                <div className="lg:col-span-2">
                   <div className="sticky top-24">
                     <BlogKeywordDensity 
                       content={extractTextFromHTML(blogData.blogContent)}
