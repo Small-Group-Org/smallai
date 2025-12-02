@@ -12,7 +12,7 @@ import ArticleDetail from "./pages/ArticleDetail";
 import NotFound from "./pages/NotFound";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
-
+import Store from "./pages/Store";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -26,6 +26,7 @@ const App = () => (
           <Route path="/portfolio" element={<Portfolio />} />
           <Route path="/portfolio/:projectSlug" element={<ProjectDetail />} />
           <Route path="/portfolio/seo-blog-writer/:blogSlug" element={<BlogPost />} />
+          <Route path="/store" element={<Store/>}/>
           <Route path="/portfolio/articles" element={<Articles />} />
           <Route path="/portfolio/articles/:articleSlug" element={<ArticleDetail />} />
           <Route path="/privacy" element={<Privacy />} />
