@@ -11,6 +11,40 @@ import {
 
 import { PRODUCTS, Product } from "@/commons/cards";
 
+// --- HELPER: DETECT CARD TYPE  ---
+const getCardType = (number: string) => {
+  const clean = number.replace(/\D/g, "");
+  
+  // 1. RuPay (India) - Starts with 60, 65, 81, 82, 508
+  if (/^60|^65|^81|^82|^508/.test(clean)) return "RuPay";
+
+  // 2. Visa (Global) - Starts with 4
+  if (/^4/.test(clean)) return "Visa";
+
+  // 3. Mastercard (Global) - Starts with 51-55 or 2221-2720
+  if (/^5[1-5]/.test(clean) || /^222[1-9]|22[3-9]\d|2[3-6]\d{2}|27[0-1]\d|2720/.test(clean)) return "Mastercard";
+
+  // 4. Amex (American Express) - Starts with 34 or 37
+  if (/^3[47]/.test(clean)) return "Amex";
+
+  // 5. Diners Club - Starts with 300-305, 36, 38
+  if (/^3(?:0[0-5]|[68])/.test(clean)) return "Diners Club";
+
+  // 6. Discover - Starts with 6011, 64, 65
+  if (/^6(?:011|5|4[4-9])/.test(clean)) return "Discover";
+
+  // 7. JCB (Japan) - Starts with 35
+  if (/^35/.test(clean)) return "JCB";
+
+  // 8. UnionPay (China) - Starts with 62
+  if (/^62/.test(clean)) return "UnionPay";
+
+  // 9. Maestro (Debit cards) - Starts with 50, 56-58, 6
+  if (/^(5018|5020|5038|5893|6304|6759|6761|6762|6763)/.test(clean)) return "Maestro";
+
+  return "";
+};
+
 // --- COMPONENTS ---
 
 const ProductCard = ({ product, onClick }: { product: Product; onClick: () => void }) => (
@@ -128,10 +162,10 @@ const SuccessPage = ({ email, onHome }: { email: string; onHome: () => void }) =
           <Mail className="text-blue-600 w-5 h-5" />
         </div>
         <div>
-          <h3 className="font-semibold text-gray-900">Check your inbox</h3>
-          <p className="text-sm text-gray-600 mt-1">
-            We have sent a receipt and your download links to <span className="font-bold text-gray-900">{email || "your email"}</span>.
-          </p>
+            <h3 className="font-semibold text-gray-900">Check your inbox</h3>
+            <p className="text-sm text-gray-600 mt-1">
+              We have sent a receipt and your download links to <span className="font-bold text-gray-900">{email || "your email"}</span>.
+            </p> 
         </div>
       </div>
       <div className="space-y-3 pt-6">
@@ -146,32 +180,42 @@ const SuccessPage = ({ email, onHome }: { email: string; onHome: () => void }) =
 // --- CHECKOUT COMPONENT ---
 const Checkout = ({ cart, onBack, onRemove, onPay }: { cart: Product[]; onBack: () => void; onRemove: (id: number) => void; onPay: (email: string) => void }) => {
   const [loading, setLoading] = useState(false);
+  const [cardBrand, setCardBrand] = useState(""); // Stores detected brand (Visa, RuPay...)
   const [formData, setFormData] = useState({
     email: "",
     name: "",
     cardNumber: "",
     expiry: "",
-    cvv: ""
+    cvv: "" 
   });
 
   const subtotal = cart.reduce((acc, item) => acc + item.price, 0);
-  const gst = subtotal * 0.18;
+  const gst = subtotal * 0.18; 
   const total = subtotal + gst;
 
+  // Strict input handling
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     let formattedValue = value;
 
     if (name === "name") {
+      // 1. Strict Name: Only letters and spaces
       if (!/^[a-zA-Z\s]*$/.test(value)) return;
     } else if (name === "cardNumber") {
+      // Numbers only, max 16 chars
       const clean = value.replace(/\D/g, "");
       const truncated = clean.slice(0, 16);
       formattedValue = truncated.replace(/(\d{4})(?=\d)/g, "$1 ");
+      
+      // AUTO-DETECT CARD BRAND LOGIC
+      const brand = getCardType(clean);
+      setCardBrand(brand);
+
     } else if (name === "expiry") {
+      // MM/YY Fix
       const clean = value.replace(/\D/g, "");
       const truncated = clean.slice(0, 4);
-      const nativeEvent = e.nativeEvent as any;
+      const nativeEvent = e.nativeEvent as any; 
       const isDeleting = nativeEvent.inputType === "deleteContentBackward" || nativeEvent.inputType === "deleteContentForward";
 
       if (truncated.length >= 2 && !isDeleting) {
@@ -183,58 +227,68 @@ const Checkout = ({ cart, onBack, onRemove, onPay }: { cart: Product[]; onBack: 
           formattedValue = truncated;
         }
       }
-    } else if (name === "cvv") {
-      const clean = value.replace(/\D/g, "");
-      formattedValue = clean.slice(0, 4);
+    } else if (name === "cvv") { 
+       // CVV: 3 or 4 digits
+       const clean = value.replace(/\D/g, "");
+       formattedValue = clean.slice(0, 4);
     }
     setFormData(prev => ({ ...prev, [name]: formattedValue }));
   };
 
   const handlePay = async () => {
+    // 0. Cart Empty Check
     if (cart.length === 0) {
       toast.error("Your cart is empty!");
       return;
     }
-    if (!formData.email || !formData.name || !formData.cardNumber || !formData.expiry || !formData.cvv) {
+    // 1. Empty Fields Check
+    if(!formData.email || !formData.name || !formData.cardNumber || !formData.expiry || !formData.cvv) {
       toast.error("Please fill in all required fields to proceed.");
       return;
     }
+    // 2. Email Validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       toast.error("Please enter a valid email address.");
       return;
     }
+    // 3. Name Validation
     if (formData.name.trim().length === 0) {
       toast.error("Name is required.");
       return;
     }
+    // 4. Card Length Validation
     const cleanCardNum = formData.cardNumber.replace(/\s/g, "");
     if (!/^\d{16}$/.test(cleanCardNum)) {
       toast.error("Card number must be exactly 16 digits.");
       return;
     }
+    // 5. Expiry Validation
     if (!/^\d{2}\/\d{2}$/.test(formData.expiry)) {
       toast.error("Expiry date must be in MM/YY format.");
       return;
     }
+    
+    // Future Date Check
     const [expMonth, expYear] = formData.expiry.split('/');
     const currentYear = new Date().getFullYear() % 100;
     const currentMonth = new Date().getMonth() + 1;
     const numExpYear = parseInt(expYear, 10);
     const numExpMonth = parseInt(expMonth, 10);
     if (numExpMonth < 1 || numExpMonth > 12) {
-      toast.error("Invalid month.");
-      return;
+       toast.error("Invalid month.");
+       return;
     }
     if (numExpYear < currentYear || (numExpYear === currentYear && numExpMonth < currentMonth)) {
-      toast.error("Card has expired.");
-      return;
+        toast.error("Card has expired.");
+        return;
     }
+    // 6. CVV Validation
     if (!/^\d{3,4}$/.test(formData.cvv)) {
       toast.error("CVV must be 3 or 4 digits.");
       return;
     }
-
+    
     setLoading(true);
     try {
       const response = await fetch("https://5jsanjhv.rpcl.app/webhook/emailnotification", {
@@ -243,22 +297,22 @@ const Checkout = ({ cart, onBack, onRemove, onPay }: { cart: Product[]; onBack: 
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
-          product_titles: cart.map(p => p.title).join(", "),
+          product_titles: cart.map(p => p.title).join(", "), 
           order_total: total.toFixed(2)
         })
       });
-      if (response.ok) {
+      if(response.ok) {
         toast.success(`Purchase successful! Sent to ${formData.email}`);
         setLoading(false);
         onPay(formData.email);
       } else {
-        toast.success("Purchase successful!");
+        toast.success("Purchase successful!"); 
         setLoading(false);
         onPay(formData.email);
       }
     } catch (e) {
       console.error(e);
-      toast.success("Purchase successful!");
+      toast.success("Purchase successful!"); 
       setLoading(false);
       onPay(formData.email);
     }
@@ -333,7 +387,21 @@ const Checkout = ({ cart, onBack, onRemove, onPay }: { cart: Product[]; onBack: 
                     <label className="text-xs font-bold text-gray-700 mb-1 block">Card information <span className="text-red-500">*</span></label>
                     <div className="relative">
                       <input type="text" name="cardNumber" maxLength={19} value={formData.cardNumber} onChange={handleInputChange} placeholder="1234 5678 1234 5678" className="w-full bg-white border border-gray-300 rounded p-3 text-gray-900 pl-10 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" required />
-                      <CreditCard className="absolute left-3 top-3.5 text-gray-400" size={18} />
+                      
+                      {/* CARD ICON / BRAND DISPLAY */}
+                      <div className="absolute left-3 top-3.5 flex items-center gap-2">
+                         <CreditCard className={`${cardBrand ? "text-blue-600" : "text-gray-400"}`} size={18} />
+                      </div>
+                      
+                      {/* CARD BRAND TEXT BADGE */}
+                      {cardBrand && (
+                        <div className="absolute right-3 top-2.5">
+                           <span className="bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-1 rounded border border-blue-200">
+                             {cardBrand.toUpperCase()}
+                           </span>
+                        </div>
+                      )}
+
                     </div>
                     <div className="flex gap-2 mt-2">
                       <input type="text" name="expiry" value={formData.expiry} onChange={handleInputChange} placeholder="MM / YY" className="w-1/2 bg-white border border-gray-300 rounded p-3 text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" required />
@@ -343,22 +411,23 @@ const Checkout = ({ cart, onBack, onRemove, onPay }: { cart: Product[]; onBack: 
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-bold text-gray-900 mb-2">Country</label>
-                <select className="w-full bg-white border border-gray-300 rounded p-3 text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
-                  <option>India</option>
-                  <option>United States</option>
-                  <option>United Kingdom</option>
-                </select>
+                 <label className="block text-sm font-bold text-gray-900 mb-2">Country</label>
+                 <select className="w-full bg-white border border-gray-300 rounded p-3 text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                   <option>India</option>
+                   <option>United States</option>
+                   <option>United Kingdom</option>
+                 </select>
               </div>
-              <button
-                onClick={handlePay}
-                disabled={loading || cart.length === 0}
-                className={`w-full font-bold py-4 rounded transition-colors flex items-center justify-center gap-2 mt-4 shadow-md ${loading || cart.length === 0
-                    ? "bg-gray-400 cursor-not-allowed text-gray-200"
+              <button 
+                onClick={handlePay} 
+                disabled={loading || cart.length === 0} 
+                className={`w-full font-bold py-4 rounded transition-colors flex items-center justify-center gap-2 mt-4 shadow-md ${
+                  loading || cart.length === 0 
+                    ? "bg-gray-400 cursor-not-allowed text-gray-200" 
                     : "bg-blue-600 hover:bg-blue-500 text-white"
-                  }`}
+                }`}
               >
-                {loading ? (<> <Loader2 className="animate-spin" size={20} /> Processing... </>) : (<> <Lock size={16} /> Pay US${total.toFixed(2)} </>)}
+                 {loading ? (<> <Loader2 className="animate-spin" size={20} /> Processing... </>) : (<> <Lock size={16} /> Pay US${total.toFixed(2)} </>)}
               </button>
             </div>
             <p className="text-center text-xs text-gray-500 mt-4">Powered by Small Group Payments. Secure SSL Connection.</p>
@@ -397,11 +466,11 @@ const Store = () => {
   }, []);
 
   const navigateTo = (newView: 'grid' | 'detail' | 'checkout' | 'success', product?: Product) => {
-    // FIX: Storing only productId in history state to prevent crashes
-    const state = { view: newView, productId: product ? product.id : null };
-    window.history.pushState(state, '', `#${newView}`);
-    setView(newView);
-    if (product) setSelectedProduct(product);
+     // FIX: Storing only productId in history state to prevent crashes
+     const state = { view: newView, productId: product ? product.id : null };
+     window.history.pushState(state, '', `#${newView}`);
+     setView(newView);
+     if (product) setSelectedProduct(product);
   };
 
   const handleProductClick = (product: Product) => {
@@ -412,7 +481,7 @@ const Store = () => {
     if (!cart.find(p => p.id === product.id)) {
       setCart([...cart, product]);
     } else {
-      setCart(cart.map(p => p.id === product.id ? product : p));
+        setCart(cart.map(p => p.id === product.id ? product : p));
     }
     navigateTo('checkout');
   };
@@ -423,16 +492,16 @@ const Store = () => {
 
   const handlePaymentSuccess = (email: string) => {
     setCustomerEmail(email);
-    setCart([]);
+    setCart([]); 
     navigateTo('success');
   };
 
   const handleBackToStore = () => {
-    if (window.history.state && window.history.state.view !== 'grid') {
-      window.history.back();
-    } else {
-      navigateTo('grid');
-    }
+     if (window.history.state && window.history.state.view !== 'grid') {
+        window.history.back();
+     } else {
+        navigateTo('grid');
+     }
   };
 
   if (view === 'checkout') {
@@ -458,9 +527,9 @@ const Store = () => {
                   <p className="text-gray-500">Premium AI templates and workflows.</p>
                 </div>
                 {cart.length > 0 && (
-                  <button onClick={() => navigateTo('checkout')} className="text-blue-600 font-medium hover:underline">
-                    View Cart ({cart.length})
-                  </button>
+                   <button onClick={() => navigateTo('checkout')} className="text-blue-600 font-medium hover:underline">
+                     View Cart ({cart.length})
+                   </button>
                 )}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
